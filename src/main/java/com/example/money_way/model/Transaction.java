@@ -18,7 +18,7 @@ public class Transaction {
 
     @Id
     @Column(nullable = false)
-    private Long transactionId;
+    private String transactionId;
 
     @Column(nullable = false)
     private String currency;
@@ -31,6 +31,7 @@ public class Transaction {
     private String responseMessage;
     private String providerStatus;
     private String paymentType;
+    private Long userId;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "createdAt")

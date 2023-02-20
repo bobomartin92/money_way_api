@@ -97,7 +97,7 @@ public class BillServiceImpl implements BillService {
         Transaction transaction = Transaction.builder()
                 .userId(userId)
                 .currency("NIL")
-                .txReferenceId(transactionReference)
+                .transactionId(transactionReference)
                 .amount(request.getAmount())
                 .build();
         transactionRepository.save(transaction);

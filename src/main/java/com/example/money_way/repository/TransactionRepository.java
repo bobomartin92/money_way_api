@@ -6,9 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, String> {
 
-    Optional<Transaction> findByTxReferenceId(String tx_ref);
 
-    Optional<Transaction> findByTransactionId(Long transactionId);
+    Optional<Transaction> findByTransactionId(String transactionId);
 }
