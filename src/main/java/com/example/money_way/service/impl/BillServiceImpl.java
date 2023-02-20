@@ -40,7 +40,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public ApiResponse<DataPurchaseResponse> buyData(DataPurchaseRequest request) {
-        String transactionReference = getReference();
+        String transactionReference = getReference()+"DATA-BUNDLE";
         request.setRequest_id(transactionReference);
 
         User user = appUtil.getLoggedInUser();
@@ -79,8 +79,7 @@ public class BillServiceImpl implements BillService {
     private String getReference() {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        String dateString = now.format(formatter);
-        return dateString+"DATA-BUNDLE";
+        return now.format(formatter);
     }
 
     private void saveBeneficiary(DataPurchaseRequest request, Long userId) {
