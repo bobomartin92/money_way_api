@@ -5,6 +5,7 @@ import com.example.money_way.configuration.security.CustomUserDetailService;
 import com.example.money_way.configuration.security.JwtUtils;
 import com.example.money_way.dto.request.*;
 import com.example.money_way.dto.response.ApiResponse;
+import com.example.money_way.enums.Role;
 import com.example.money_way.exception.InvalidCredentialsException;
 import com.example.money_way.exception.UserNotFoundException;
 import com.example.money_way.exception.ValidationException;
@@ -82,18 +83,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public ApiResponse verifyLink(VerifyTokenDto verifyTokenDto) {
 
-        Optional<User> existingUser = userRepository.findByConfirmationToken(verifyTokenDto.getToken());
-        if (existingUser.isPresent()) {
-            existingUser.get().setConfirmationToken(null);
-            existingUser.get().setActive(true);
-            CreateWalletRequest request = new CreateWalletRequest();
-            request.setEmail(existingUser.get().getEmail());
-            request.setBvn(existingUser.get().getBvn());
-            walletService.createWallet(request);
-            return ApiResponse.builder().message("Success").status("Account created successfully").build();
-        }
-        throw new UserNotFoundException("Error: No Account found! or Invalid Token");
+            Optional<User> existingUser = userRepository.findByConfirmationToken(verifyTokenDto.getToken());
+            if (existingUser.isPresent()) {
+                existingUser.get().setConfirmationToken(null);
+                existingUser.get().setActive(true);
+                CreateWalletRequest request = new CreateWalletRequest();
+                request.setEmail(existingUser.get().getEmail());
+                request.setBvn(existingUser.get().getBvn());
+                walletService.createWallet(request);
+                return ApiResponse.builder().message("Success").status("Account created successfully").build();
+            }
+            throw new UserNotFoundException("Error: No Account found! or Invalid Token");
     }
+
 
     @Override
     public ResponseEntity<ApiResponse> signUp(SignUpDto signUpDto) throws ValidationException {
@@ -109,11 +111,12 @@ public class UserServiceImpl implements UserService {
         user.setPhoneNumber(signUpDto.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
         user.setBvn(signUpDto.getBvn());
+        user.setRole(Role.ROLE_USER);
         user.setPin(passwordEncoder.encode(signUpDto.getPin()));
         String token = jwtUtils.generateSignUpConfirmationToken(signUpDto.getEmail());
         userRepository.save(user);
 
-        String URL = "http://localhost:8081/MoneyWay/api/v1/user/verify?token=" + token;
+        String URL = "http://localhost:8084/api/v1/auth/verify-link/?token=" + token +"&email="+user.getEmail();
         String link = "<h3>Hello "  + signUpDto.getFirstName()  +"<br> Click the link below to activate your account <a href=" + URL + "><br>Activate</a></h3>";
 
         emailService.sendEmail(signUpDto.getEmail(),"MoneyWay: Verify Your Account", link);

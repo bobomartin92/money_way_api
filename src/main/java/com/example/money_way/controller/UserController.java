@@ -20,12 +20,13 @@ package com.example.money_way.controller;
 @RequestMapping("/api/v1/auth")
 public class UserController {
     private final UserService userService;
+
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequestDto loginRequestdto) {
         return userService.login(loginRequestdto);
     }
-    @PutMapping("/verify-link")
-    ResponseEntity<ApiResponse>verifyLink(@RequestBody VerifyTokenDto verifyTokenDto){
+    @GetMapping("/verify-link")
+    ResponseEntity<ApiResponse>verifyLink(@RequestParam VerifyTokenDto verifyTokenDto){
         ApiResponse response = userService.verifyLink(verifyTokenDto);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
