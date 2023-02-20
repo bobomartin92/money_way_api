@@ -1,7 +1,9 @@
 package com.example.money_way.controller;
 
 import com.example.money_way.dto.request.DataPurchaseRequest;
+import com.example.money_way.dto.request.TransactionStatusRequest;
 import com.example.money_way.dto.response.ApiResponse;
+import com.example.money_way.dto.response.DataPurchaseResponse;
 import com.example.money_way.service.BillService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,8 @@ public class BillController {
     private final BillService billService;
 
     @PostMapping("/buy-data")
-    public ResponseEntity<ApiResponse> buyData(@Valid @RequestBody DataPurchaseRequest request){
+    public ResponseEntity<ApiResponse<DataPurchaseResponse>> buyData(@RequestBody DataPurchaseRequest request){
         return ResponseEntity.ok(billService.buyData(request));
     }
+
 }

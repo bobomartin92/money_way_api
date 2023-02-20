@@ -14,9 +14,15 @@ public class EnvironmentVariables {
     @Value("${app.create_wallet}")
     private String createWalletUrl;
 
-    @Value("${app.get_bill_categories}")
-    private String getBillCategoriesUrl;
-
     @Value("${app.buy_data}")
     private String dataPurchaseUrl;
+
+    @Value("${app.purchase_data}")
+    private String purchaseDataUrl;
+
+    @Value("${app.vt-pass-api-key}")
+    private String vtPassApiKey;
+
+    @Value("${app.vt-pass-secret-key}")
+    private String vtPassSecretKey;
 }

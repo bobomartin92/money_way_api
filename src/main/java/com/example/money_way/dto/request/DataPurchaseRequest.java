@@ -7,15 +7,11 @@ import java.math.BigDecimal;
 
 @Data
 public class DataPurchaseRequest {
-    @NotNull(message = "This field cannot be empty")
-    private String country;
-    @NotNull(message = "This field cannot be empty, Please enter destination phone number")
-    private String customer;
-    @NotNull(message = "This field cannot be empty")
+    private String request_id;
+    private String serviceID;
+    private String billersCode;
+    private String variation_code;
     private BigDecimal amount;
-    @NotNull(message = "This field cannot be empty")
-    private String type;
-    @NotNull(message = "This field cannot be empty")
-    private String reference;
+    private String phone;
     private boolean saveBeneficiary;
 }

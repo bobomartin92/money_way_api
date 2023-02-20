@@ -29,7 +29,7 @@ public class SecurityConfiguration {
             path +"/signin/**", path + "/forgot-password", path + "/reset-password",
             path + "/register", path + "/verify-code", path + "/references",
            "/v3/api-docs/**",  "/configuration/**",   "/swagger*/**",
-            "/swagger-ui/**",  "/webjars/**",
+            "/swagger-ui/**",  "/webjars/**", "/api/v1/bills/buy-data", path + "/login",
 
             path + "/register", path + "/verify-code", path + "/references",
             path + "/forgot-password/**",
