@@ -2,12 +2,10 @@ package com.example.money_way.model;
 
 import com.example.money_way.enums.Status;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -16,23 +14,44 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Table(name = "transaction_tbl")
-public class Transaction extends Base {
+public class Transaction {
 
-    private Long flutterTransactionId;
+    @Id
+    @Column(nullable = false)
+    private Long transactionId;
 
     @Column(nullable = false)
     private String currency;
     @Column(nullable = false)
     private BigDecimal amount;
     @Column(nullable = false)
-    private String txReferenceId;
+    private String virtualAccountRef;
     private String description;
     private Status status;
     private String responseMessage;
     private String providerStatus;
     private String paymentType;
-    @Column(nullable = false)
-    private Long userId;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "createdAt")
+    private Date createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="last_updated")
+    private Date updatedAt;
+
+
+    @PrePersist
+    public void createdAt(){
+
+        this.createdAt = new Date();
+    }
+
+    @PreUpdate
+    public void updatedAt(){
+
+        this.updatedAt = new Date();
+    }
 
 
 }

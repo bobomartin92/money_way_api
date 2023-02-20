@@ -1,7 +1,5 @@
 package com.example.money_way.model;
-
 import lombok.*;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -20,4 +18,3 @@ public class User extends Person{
     private String confirmationToken;
     private boolean isActive;
 }
-
