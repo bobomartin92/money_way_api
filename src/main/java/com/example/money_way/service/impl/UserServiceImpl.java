@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService {
         String token = jwtUtils.generateSignUpConfirmationToken(signUpDto.getEmail());
         userRepository.save(user);
 
-        String URL = "http://localhost:8084/api/v1/auth/verify-link/?token=" + token +"&email="+user.getEmail();
+        String URL = "http://localhost:8080/api/v1/auth/verify-link/?token=" + token +"&email="+user.getEmail();
         String link = "<h3>Hello "  + signUpDto.getFirstName()  +"<br> Click the link below to activate your account <a href=" + URL + "><br>Activate</a></h3>";
 
         emailService.sendEmail(signUpDto.getEmail(),"MoneyWay: Verify Your Account", link);
