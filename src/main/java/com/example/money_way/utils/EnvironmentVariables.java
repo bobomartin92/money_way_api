@@ -13,4 +13,10 @@ public class EnvironmentVariables {
 
     @Value("${app.create_wallet}")
     private String createWalletUrl;
+
+    @Value("${app.verify_transaction_endpoint}")
+    private String verifyTransactionEndpoint;
+
+    @Value("${app.WEBHOOK_VERIFY_HASH}")
+    private String WEBHOOK_VERIFY_HASH;
 }
