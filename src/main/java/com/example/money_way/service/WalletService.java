@@ -9,4 +9,6 @@ public interface WalletService {
     ApiResponse<ViewWalletResponseDto> viewBalance();
     ApiResponse createWallet(CreateWalletRequest request);
 
+
+
 }
