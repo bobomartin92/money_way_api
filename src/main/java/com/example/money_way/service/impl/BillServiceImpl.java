@@ -1,0 +1,39 @@
+package com.example.money_way.service.impl;
+
+import com.example.money_way.dto.request.AccountVerificationRequest;
+import com.example.money_way.dto.request.CreateWalletRequest;
+import com.example.money_way.dto.response.AccountVerificationResponse;
+import com.example.money_way.dto.response.ApiResponse;
+import com.example.money_way.service.BillService;
+import com.example.money_way.utils.EnvironmentVariables;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+
+@RequiredArgsConstructor
+@Service
+public class BillServiceImpl implements BillService {
+
+    private final RestTemplate restTemplate;
+    private final EnvironmentVariables environmentVariables;
+
+
+    @Override
+    public AccountVerificationResponse verifyElectricityAccount(AccountVerificationRequest request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("api-key",  environmentVariables.getVtPassApiKey());
+        headers.add("secret-key", environmentVariables.getVtPassSecretKey());
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<AccountVerificationRequest> entity = new HttpEntity<>(request, headers);
+
+        AccountVerificationResponse response = restTemplate.exchange(environmentVariables.getVerifyElectricityAccountUrl(),
+                HttpMethod.POST, entity, AccountVerificationResponse.class).getBody();
+        return response;
+    }
+}
