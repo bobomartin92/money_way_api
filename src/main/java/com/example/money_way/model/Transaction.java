@@ -18,7 +18,9 @@ public class Transaction {
 
     @Id
     @Column(nullable = false)
-    private String transactionId;
+    private Long transactionId;
+
+    private String request_id;
 
     @Column(nullable = false)
     private String currency;

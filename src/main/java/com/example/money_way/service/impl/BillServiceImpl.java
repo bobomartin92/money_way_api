@@ -23,8 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -40,7 +38,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public ApiResponse<DataPurchaseResponse> buyData(DataPurchaseRequest request) {
-        String transactionReference = getReference()+"DATA-BUNDLE";
+        String transactionReference = appUtil.getReference()+"DATA-BUNDLE";
         request.setRequest_id(transactionReference);
 
         User user = appUtil.getLoggedInUser();
@@ -75,13 +73,6 @@ public class BillServiceImpl implements BillService {
 
         return new ApiResponse("Failed", "Insufficient Wallet Balance", null);
     }
-
-    private String getReference() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        return now.format(formatter);
-    }
-
     private void saveBeneficiary(DataPurchaseRequest request, Long userId) {
         Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiariesByPhoneNumber(request.getPhone());
         if (savedBeneficiary.isEmpty()) {
@@ -96,7 +87,7 @@ public class BillServiceImpl implements BillService {
         Transaction transaction = Transaction.builder()
                 .userId(userId)
                 .currency("NIL")
-                .transactionId(transactionReference)
+                .request_id(transactionReference)
                 .amount(request.getAmount())
                 .build();
         transactionRepository.save(transaction);

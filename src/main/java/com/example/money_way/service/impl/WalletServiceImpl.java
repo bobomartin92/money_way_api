@@ -152,10 +152,10 @@ public class WalletServiceImpl implements WalletService {
     private void  validateTransactionAndUpdateWallet(VerifyTransaction transactionResponseObject) {
 
         //Get the transaction if already logged or create a new transaction
-        Transaction transaction = transactionRepository.findByTransactionId(transactionResponseObject.getId().toString())
+        Transaction transaction = transactionRepository.findByTransactionId(transactionResponseObject.getId())
                 .orElse(
                         Transaction.builder()
-                                .transactionId(transactionResponseObject.getId().toString())
+                                .transactionId(transactionResponseObject.getId())
                                 .status(Status.PENDING)
                                 .currency(transactionResponseObject.getCurrency())
                                 .description(transactionResponseObject.getNarration())
