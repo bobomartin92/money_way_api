@@ -14,14 +14,11 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class TransferDto {
+public class LocalTransferDto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String referenceId;
-
-    @NotNull(message = "Account number cannot be null")
-    private String accountNumber;
 
     @NotBlank(message = "email cannot be blank")
     private String email;

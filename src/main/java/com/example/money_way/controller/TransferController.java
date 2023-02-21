@@ -1,6 +1,6 @@
 package com.example.money_way.controller;
 
-import com.example.money_way.dto.request.TransferDto;
+import com.example.money_way.dto.request.LocalTransferDto;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.service.TransferService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class TransferController {
     private final TransferService transferService;
 
     @PostMapping("/local-transfer")
-    public ApiResponse localTransfer(@Valid @RequestBody TransferDto localTransfer)  {
+    public ApiResponse localTransfer(@Valid @RequestBody LocalTransferDto localTransfer)  {
         return transferService.localTransfer(localTransfer);
     }
 
