@@ -19,13 +19,4 @@ public class EnvironmentVariables {
 
     @Value("${app.WEBHOOK_VERIFY_HASH}")
     private String WEBHOOK_VERIFY_HASH;
-
-    @Value("${app.fetch_data_variations}")
-    private String fetchDataVariations;
-
-    @Value("${app.api_key}")
-    private String apiKey;
-
-    @Value("${app.public_key}")
-    private String publicKey;
 }
