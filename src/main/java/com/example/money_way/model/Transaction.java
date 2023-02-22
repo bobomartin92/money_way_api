@@ -29,10 +29,12 @@ public class Transaction {
     @Column(nullable = false)
     private String virtualAccountRef;
     private String description;
+    @Enumerated(EnumType.STRING)
     private Status status;
     private String responseMessage;
     private String providerStatus;
     private String paymentType;
+    @Column(nullable = false)
     private Long userId;
 
     @Temporal(TemporalType.TIMESTAMP)
