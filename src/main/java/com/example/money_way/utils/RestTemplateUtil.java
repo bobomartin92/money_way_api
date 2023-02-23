@@ -25,7 +25,15 @@ public class RestTemplateUtil {
     private final RestTemplate restTemplate;
     private final EnvironmentVariables environmentVariables;
 
-    private HttpHeaders headersForFlutterwave(){
+    public HttpHeaders getVTPASS_Header() {
+        HttpHeaders header = new HttpHeaders();
+        header.add("api-key", environmentVariables.getVTPASS_API_KEY());
+        header.add("secret-key", environmentVariables.getVTPASS_Secret_Key());
+        header.setContentType((MediaType.APPLICATION_JSON));
+        return header;
+    }
+
+    public HttpHeaders headersForFlutterwave(){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + environmentVariables.getFLW_SECRET_KEY());
         headers.setContentType(MediaType.APPLICATION_JSON);
