@@ -40,4 +40,14 @@ public class EnvironmentVariables {
 
     @Value("${app.WEBHOOK_VERIFY_HASH}")
     private String WEBHOOK_VERIFY_HASH;
+
+    @Value("${app.VTPASS_API_KEY}")
+    private String VTPASS_API_KEY;
+    @Value("${app.VTPASS_Public_Key}")
+    private String VTPASS_Public_Key;
+    @Value("${app.VTPASS_Secret_Key}")
+    private String VTPASS_Secret_Key;
+    @Value("${app.buy_airtime_endpoint}")
+    private String buy_airtime_endpoint;
+
 }
