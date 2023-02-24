@@ -32,8 +32,6 @@ public class LocalTransferDto {
     @NotBlank(message = "Pin cannot be blank")
     private String pin;
 
-    private Boolean saveBeneficiary;
-
-    private Long userId;
+    private boolean saveBeneficiary;
 
 }

@@ -3,10 +3,7 @@ package com.example.money_way.service.impl;
 import com.example.money_way.configuration.mail.EmailService;
 import com.example.money_way.configuration.security.CustomUserDetailService;
 import com.example.money_way.configuration.security.JwtUtils;
-import com.example.money_way.dto.request.CreateWalletRequest;
-import com.example.money_way.dto.request.LoginRequestDto;
-import com.example.money_way.dto.request.PasswordResetDTO;
-import com.example.money_way.dto.request.SignUpDto;
+import com.example.money_way.dto.request.*;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.enums.Role;
 import com.example.money_way.exception.InvalidCredentialsException;
@@ -25,6 +22,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @Data
@@ -79,28 +78,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ApiResponse verifyLink(String email, String token) {
+    public ApiResponse verifyLink(VerifyTokenDto verifyTokenDto) {
 
-        String tokenEmail = jwtUtils.extractUsername(token);
-
-      if (jwtUtils.isTokenExpired(token))
-            throw new ValidationException("Token expired. Resend token and try again");
-
-        if (email.equalsIgnoreCase(tokenEmail)) {
-            User existingUser = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new UserNotFoundException("User does not exist"));
-                existingUser.setConfirmationToken(null);
-                existingUser.setActive(true);
-                CreateWalletRequest request = new CreateWalletRequest();
-                request.setEmail(existingUser.getEmail());
-                request.setBvn(existingUser.getBvn());
-                request.setTx_ref(appUtil.generateSerialNumber("MNW_"));
-                request.setIs_permanent("true");
-                walletService.createWallet(request);
-                return ApiResponse.builder().message("Success").status("Account created successfully").build();
-            }
-            throw new UserNotFoundException("Error: No Account found! or Invalid Token");
+        Optional<User> existingUser = userRepository.findByConfirmationToken(verifyTokenDto.getToken());
+        if (existingUser.isPresent()) {
+            existingUser.get().setConfirmationToken(null);
+            existingUser.get().setActive(true);
+            CreateWalletRequest request = new CreateWalletRequest();
+            request.setEmail(existingUser.get().getEmail());
+            request.setBvn(existingUser.get().getBvn());
+            walletService.createWallet(request);
+            return ApiResponse.builder().message("Success").status("Account created successfully").build();
+        }
+        throw new UserNotFoundException("Error: No Account found! or Invalid Token");
     }
+
 
     @Override
     public ResponseEntity<ApiResponse> signUp(SignUpDto signUpDto) throws ValidationException {
@@ -121,7 +113,7 @@ public class UserServiceImpl implements UserService {
         String token = jwtUtils.generateSignUpConfirmationToken(signUpDto.getEmail());
         userRepository.save(user);
 
-        String URL = "http://localhost:8080/api/v1/auth/verify-link/?token=" + token +"&email="+user.getEmail();
+        String URL = "http://localhost:8084/api/v1/auth/verify-link/?token=" + token;
         String link = "<h3>Hello "  + signUpDto.getFirstName()  +"<br> Click the link below to activate your account <a href=" + URL + "><br>Activate</a></h3>";
 
         emailService.sendEmail(signUpDto.getEmail(),"MoneyWay: Verify Your Account", link);
@@ -129,3 +121,4 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.ok(new ApiResponse<>("Successful", "SignUp Successful. Check your mail to activate your account", null));
     }
 }
+

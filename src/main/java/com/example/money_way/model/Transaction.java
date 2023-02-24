@@ -1,12 +1,19 @@
 package com.example.money_way.model;
 
 import com.example.money_way.enums.Status;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-
-import javax.persistence.*;
+import javax.persistence.PrePersist;
+import javax.persistence.TemporalType;
+import javax.persistence.Temporal;
+import javax.persistence.PreUpdate;
+import javax.persistence.Id;
 import java.math.BigDecimal;
 import java.util.Date;
 

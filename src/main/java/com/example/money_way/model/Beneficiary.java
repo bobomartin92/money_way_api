@@ -15,7 +15,6 @@ import javax.persistence.*;
 public class Beneficiary extends Base{
     private String name;
     private String accountNumber;
-    private String virtualAcctRef;
     private String phoneNumber;
     private String email;
     @Enumerated(EnumType.STRING)
