@@ -1,7 +1,6 @@
 package com.example.money_way.controller;
 
 import com.example.money_way.dto.response.ApiResponse;
-import com.example.money_way.enums.TransactionType;
 import com.example.money_way.model.Beneficiary;
 import com.example.money_way.service.BeneficiaryService;
 import lombok.RequiredArgsConstructor;
