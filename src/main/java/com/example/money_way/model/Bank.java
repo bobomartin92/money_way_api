@@ -12,6 +12,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Builder
 @Table(name = "bankL_list_tbl")
-public class BankList extends Base{
+public class Bank extends Base{
     private String bankName;
+    private String bankCode;
 }

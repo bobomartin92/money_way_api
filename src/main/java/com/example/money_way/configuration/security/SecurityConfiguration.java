@@ -34,6 +34,9 @@ public class SecurityConfiguration {
             path + "/register", path + "/verify-code", path + "/references",
             path + "/forgot-password/**",
             path + "/reset-password/**",
+            path + "/verify-token/**",
+            path + "/sign-up",
+            "/api/v1/transfers/bank/response"
             path + "/verify-link/**",
             path + "/sign-up"
     };
