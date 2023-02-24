@@ -23,17 +23,8 @@ public class EnvironmentVariables {
     @Value("${app.flutter_base_url}"+"${app.flutter_endpoint_to_retry_transfer_to_bank}")
     private String getRetryTransferToBankUrl;
 
-    @Value("${app.buy_data}")
-    private String dataPurchaseUrl;
-
     @Value("${app.purchase_data}")
     private String purchaseDataUrl;
-
-    @Value("${app.vt-pass-api-key}")
-    private String vtPassApiKey;
-
-    @Value("${app.vt-pass-secret-key}")
-    private String vtPassSecretKey;
 
     @Value("${app.verify_transaction_endpoint}")
     private String verifyTransactionEndpoint;
@@ -43,10 +34,13 @@ public class EnvironmentVariables {
 
     @Value("${app.VTPASS_API_KEY}")
     private String VTPASS_API_KEY;
+
     @Value("${app.VTPASS_Public_Key}")
     private String VTPASS_Public_Key;
+
     @Value("${app.VTPASS_Secret_Key}")
     private String VTPASS_Secret_Key;
+
     @Value("${app.buy_airtime_endpoint}")
     private String buy_airtime_endpoint;
 

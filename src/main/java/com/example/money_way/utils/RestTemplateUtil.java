@@ -1,8 +1,10 @@
 package com.example.money_way.utils;
 
+import com.example.money_way.dto.request.DataPurchaseRequest;
 import com.example.money_way.dto.request.TransferToBankDto;
 import com.example.money_way.dto.request.TransferToBankRequest;
 import com.example.money_way.dto.response.BanksResponse;
+import com.example.money_way.dto.response.DataPurchaseResponse;
 import com.example.money_way.dto.response.TransferFeeResponse;
 import com.example.money_way.dto.response.TransferToBankResponse;
 import com.example.money_way.model.Bank;
@@ -92,6 +94,14 @@ public class RestTemplateUtil {
 
         return restTemplate.exchange(environmentVariables.getGetRetryTransferToBankUrl(),
                 HttpMethod.POST, entity, TransferToBankResponse.class, uriVariables).getBody();
+    }
+
+    public DataPurchaseResponse getDataPurchaseResponse(DataPurchaseRequest request) {
+        HttpHeaders headers = getVTPASS_Header();
+        HttpEntity<DataPurchaseRequest> entity = new HttpEntity<>(request, headers);
+
+        return restTemplate.exchange(environmentVariables.getPurchaseDataUrl(),
+                HttpMethod.POST, entity, DataPurchaseResponse.class).getBody();
     }
 
 }

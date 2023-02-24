@@ -3,6 +3,7 @@ package com.example.money_way.service.impl;
 import com.example.money_way.dto.request.DataPurchaseRequest;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.dto.response.DataPurchaseResponse;
+import com.example.money_way.enums.Status;
 import com.example.money_way.exception.ResourceNotFoundException;
 import com.example.money_way.model.Beneficiary;
 import com.example.money_way.model.Transaction;
@@ -13,14 +14,9 @@ import com.example.money_way.repository.TransactionRepository;
 import com.example.money_way.repository.WalletRepository;
 import com.example.money_way.service.BillService;
 import com.example.money_way.utils.AppUtil;
-import com.example.money_way.utils.EnvironmentVariables;
+import com.example.money_way.utils.RestTemplateUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -29,8 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BillServiceImpl implements BillService {
 
-    private final RestTemplate restTemplate;
-    private final EnvironmentVariables environmentVariables;
+    private final RestTemplateUtil restTemplateUtil;
     private final BeneficiaryRepository beneficiaryRepository;
     private final TransactionRepository transactionRepository;
     private final WalletRepository walletRepository;
@@ -50,29 +45,25 @@ public class BillServiceImpl implements BillService {
 
         if (walletBalance.compareTo(request.getAmount()) >= 0){
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("api-key", environmentVariables.getVtPassApiKey() );
-        headers.add("secret-key",environmentVariables.getVtPassSecretKey() );
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<DataPurchaseRequest> entity = new HttpEntity<>(request, headers);
-
-            DataPurchaseResponse dataPurchaseResponse = restTemplate.exchange(environmentVariables.getPurchaseDataUrl(),
-                HttpMethod.POST, entity, DataPurchaseResponse.class).getBody();
+            DataPurchaseResponse response = restTemplateUtil.getDataPurchaseResponse(request);
 
             if (request.isSaveBeneficiary()){
                 saveBeneficiary(request, userId);
             }
 
-        wallet.setBalance(BigDecimal.valueOf(walletBalance.doubleValue() - request.getAmount().doubleValue()));
-            walletRepository.save(wallet);
-        saveTransaction(request, transactionReference, userId);
+            if (response.getCode().equals("000")){
+                wallet.setBalance(BigDecimal.valueOf(walletBalance.doubleValue() - request.getAmount().doubleValue()));
+                walletRepository.save(wallet);
+            }
 
-        return new ApiResponse<>("Success", "Successful Transaction", dataPurchaseResponse);
+        saveTransaction(request, response, transactionReference, userId);
+
+        return new ApiResponse<>("Success", "Successful Transaction", response);
     }
 
-        return new ApiResponse("Failed", "Insufficient Wallet Balance", null);
+        return new ApiResponse<>("Failed", "Insufficient Wallet Balance", null);
     }
+
     private void saveBeneficiary(DataPurchaseRequest request, Long userId) {
         Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiariesByPhoneNumber(request.getPhone());
         if (savedBeneficiary.isEmpty()) {
@@ -83,13 +74,22 @@ public class BillServiceImpl implements BillService {
         }
 
     }
-    private void saveTransaction(DataPurchaseRequest request, String transactionReference, Long userId) {
+    private void saveTransaction(DataPurchaseRequest request,
+                                 DataPurchaseResponse response,
+                                 String transactionReference, Long userId) {
         Transaction transaction = Transaction.builder()
+                .transactionId((Long) response.getContent().get(0).get("transactionId"))
                 .userId(userId)
                 .currency("NIL")
                 .request_id(transactionReference)
                 .amount(request.getAmount())
                 .build();
+        if (response.getCode().equals("000")){
+            transaction.setStatus(Status.SUCCESS);
+        }else {
+            transaction.setStatus(Status.FAILED);
+        }
+
         transactionRepository.save(transaction);
     }
 }

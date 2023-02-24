@@ -2,8 +2,16 @@ package com.example.money_way.dto.response;
 
 import lombok.Data;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
-public class DataPurchaseResponse<T> {
+public class DataPurchaseResponse {
     private String code;
-    private T content;
+    private List<Map<String, ?>> content;
+    private String response_description;
+    private String requestId;
+    private String amount;
+    private List<Map<String, ?>> transaction_date;
+    private String purchased_code;
 }
