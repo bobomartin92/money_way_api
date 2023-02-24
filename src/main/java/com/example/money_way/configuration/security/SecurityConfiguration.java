@@ -28,14 +28,15 @@ public class SecurityConfiguration {
     private final String[] AUTH_WHITELIST = {
             path +"/signin/**", path + "/forgot-password", path + "/reset-password",
             path + "/register", path + "/verify-code", path + "/references",
-           "/v3/api-docs/**",  "/configuration/**",   "/swagger*/**",
+           "/v3/api-docs/**",  "/configuration/**",   "/swagger*/**", "/api/v1/wallet/transaction-webhook",
             "/swagger-ui/**",  "/webjars/**",
 
             path + "/register", path + "/verify-code", path + "/references",
             path + "/forgot-password/**",
             path + "/reset-password/**",
             path + "/verify-token/**",
-            path + "/sign-up"
+            path + "/sign-up",
+            "/api/v1/transfers/bank/response"
     };
 
     private final JwtAuthFilter jwtAuthFilter;
