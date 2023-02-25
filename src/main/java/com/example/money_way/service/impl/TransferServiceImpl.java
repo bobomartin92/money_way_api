@@ -1,13 +1,16 @@
 package com.example.money_way.service.impl;
 
+import com.example.money_way.dto.request.LocalTransferDto;
 import com.example.money_way.dto.request.TransferToBankDto;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.dto.response.TransferFeeResponse;
 import com.example.money_way.dto.response.TransferToBankResponse;
 import com.example.money_way.enums.Status;
 import com.example.money_way.enums.TransactionType;
+import com.example.money_way.exception.BeneficiaryAlreadyExistsException;
 import com.example.money_way.exception.InvalidCredentialsException;
 import com.example.money_way.exception.InvalidTransactionException;
+import com.example.money_way.exception.ValidationException;
 import com.example.money_way.model.User;
 import com.example.money_way.model.Wallet;
 import com.example.money_way.model.Transaction;
@@ -183,37 +186,7 @@ public class TransferServiceImpl implements TransferService {
         transaction.setResponseMessage((String) data.get("complete_message"));
         transactionRepository.save(transaction);
     }
-import com.example.money_way.dto.request.LocalTransferDto;
-import com.example.money_way.dto.response.ApiResponse;
-import com.example.money_way.enums.Type;
-import com.example.money_way.exception.BeneficiaryAlreadyExistsException;
-import com.example.money_way.exception.ValidationException;
-import com.example.money_way.model.Transfer;
-import com.example.money_way.model.Beneficiary;
-import com.example.money_way.model.User;
-import com.example.money_way.model.Wallet;
-import com.example.money_way.repository.UserRepository;
-import com.example.money_way.repository.WalletRepository;
-import com.example.money_way.repository.BeneficiaryRepository;
-import com.example.money_way.repository.TransferRepository;
-import com.example.money_way.service.TransferService;
-import com.example.money_way.utils.AppUtil;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
-@Service
-@RequiredArgsConstructor
-public class TransferServiceImpl implements TransferService {
-
-    private final AppUtil appUtil;
-    private final WalletRepository walletRepository;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final TransferRepository transferRepository;
-    private final BeneficiaryRepository beneficiaryRepository;
 
     @Override
     public ApiResponse localTransfer(LocalTransferDto localTransfer) {
@@ -246,7 +219,7 @@ public class TransferServiceImpl implements TransferService {
             beneficiary1.setEmail(localTransfer.getEmail());
             beneficiary1.setName(receiver.get().getFirstName());
             beneficiary1.setPhoneNumber(receiver.get().getPhoneNumber());
-            beneficiary1.setType(Type.LOCAL);
+            beneficiary1.setTransactionType(TransactionType.LOCAL);
             beneficiary1.setUserId(userId);
             beneficiaryRepository.save(beneficiary1);
         }

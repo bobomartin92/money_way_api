@@ -1,5 +1,6 @@
 package com.example.money_way.service;
 
+import com.example.money_way.dto.request.LocalTransferDto;
 import com.example.money_way.dto.request.TransferToBankDto;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.dto.response.TransferToBankResponse;
@@ -10,11 +11,6 @@ public interface TransferService {
     ApiResponse getTransferFee(BigDecimal amount);
     ApiResponse transferToBank(TransferToBankDto transferToBankDto);
     void updateTransferToBankResponse(TransferToBankResponse transferToBankResponse);
-import com.example.money_way.dto.request.LocalTransferDto;
-import com.example.money_way.dto.response.ApiResponse;
-
-public interface TransferService {
-
     ApiResponse localTransfer (LocalTransferDto localTransfer);
 
 }
