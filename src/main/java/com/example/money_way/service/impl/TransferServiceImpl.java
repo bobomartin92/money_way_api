@@ -132,7 +132,7 @@ public class TransferServiceImpl implements TransferService {
                     newBeneficiary.setName(transferToBankDto.getBeneficiaryName());
                     newBeneficiary.setBankName(transferToBankDto.getAccount_bank());
                     newBeneficiary.setAccountNumber(transfer.getAccountNumber());
-                    newBeneficiary.setTransactionType(TransactionType.BANK);
+                    newBeneficiary.setTransactionType(TransactionType.ThirdPartyTransfer);
                     newBeneficiary.setUserId(user.getId());
 
                     beneficiaryRepository.save(newBeneficiary);
