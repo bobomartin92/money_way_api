@@ -29,16 +29,8 @@ public class EnvironmentVariables {
     @Value("${app.WEBHOOK_VERIFY_HASH}")
     private String WEBHOOK_VERIFY_HASH;
 
-
-    @Value("${api.api-key}")
-    private String vtPassApiKey;
-
-    @Value("${api.secret-key}")
-    private String vtPassSecretKey;
-
     @Value("${app.vt-pass-verify-account-url}")
     private String verifyElectricityAccountUrl;
-
     @Value("${app.VTPASS_API_KEY}")
     private String VTPASS_API_KEY;
     @Value("${app.VTPASS_Public_Key}")

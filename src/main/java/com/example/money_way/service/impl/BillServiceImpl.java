@@ -6,6 +6,7 @@ import com.example.money_way.dto.response.AccountVerificationResponse;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.service.BillService;
 import com.example.money_way.utils.EnvironmentVariables;
+import com.example.money_way.utils.RestTemplateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -20,16 +21,14 @@ import org.springframework.web.client.RestTemplate;
 public class BillServiceImpl implements BillService {
 
     private final RestTemplate restTemplate;
+
+    private final RestTemplateUtil restTemplateUtil;
     private final EnvironmentVariables environmentVariables;
 
 
     @Override
     public AccountVerificationResponse verifyElectricityAccount(AccountVerificationRequest request) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("api-key",  environmentVariables.getVtPassApiKey());
-        headers.add("secret-key", environmentVariables.getVtPassSecretKey());
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
+        HttpHeaders headers = restTemplateUtil.getVTPASS_Header();
         HttpEntity<AccountVerificationRequest> entity = new HttpEntity<>(request, headers);
 
         AccountVerificationResponse response = restTemplate.exchange(environmentVariables.getVerifyElectricityAccountUrl(),
