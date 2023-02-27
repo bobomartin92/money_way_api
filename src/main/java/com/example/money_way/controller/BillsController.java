@@ -1,6 +1,6 @@
 package com.example.money_way.controller;
 
-import com.example.money_way.dto.request.AirtimeRequestDto;
+import com.example.money_way.dto.request.AirtimeRequestFE;
 import com.example.money_way.dto.response.VTPassResponseDto;
 import com.example.money_way.service.BillServices;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class BillsController {
     private final BillServices billServices;
 
     @PostMapping("/buy-airtime")
-    public ResponseEntity<VTPassResponseDto> buyAirtime(AirtimeRequestDto airtimeRequestDto) {
-        return ResponseEntity.ok(billServices.buyAirtime(airtimeRequestDto));
+    public ResponseEntity<VTPassResponseDto> buyAirtime(AirtimeRequestFE airtimeRequestFE) {
+        return ResponseEntity.ok(billServices.buyAirtime(airtimeRequestFE));
     }
 }

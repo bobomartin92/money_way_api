@@ -1,6 +1,7 @@
 package com.example.money_way.service.impl;
 
 import com.example.money_way.dto.request.AirtimeRequestDto;
+import com.example.money_way.dto.request.AirtimeRequestFE;
 import com.example.money_way.dto.response.VTPassApiResponse;
 import com.example.money_way.dto.response.VTPassResponseDto;
 import com.example.money_way.enums.Status;
@@ -34,7 +35,15 @@ public class BillServicesImpl implements BillServices {
 
 
     @Override
-    public VTPassResponseDto buyAirtime(AirtimeRequestDto airtimeRequestDto) {
+    public VTPassResponseDto buyAirtime(AirtimeRequestFE airtimeRequestFE) {
+        AirtimeRequestDto airtimeRequestDto = AirtimeRequestDto.builder()
+                .request_id(airtimeRequestFE.getRequestId())
+                .variation_code(airtimeRequestFE.getVariationCode())
+                .serviceID(airtimeRequestFE.getServiceID())
+                .phone(airtimeRequestFE.getPhoneNumber())
+                .amount(airtimeRequestFE.getAmount())
+                .billersCode(airtimeRequestFE.getBillersCode())
+                .build();
 
         HttpEntity<AirtimeRequestDto> entity = new HttpEntity<>(airtimeRequestDto, apiHeaders.getVTPASS_Header());
         VTPassApiResponse vtPassApiResponse = restTemplate.exchange(environmentVariables.getBuy_airtime_endpoint(),
