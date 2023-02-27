@@ -29,16 +29,8 @@ public class EnvironmentVariables {
     @Value("${app.WEBHOOK_VERIFY_HASH}")
     private String WEBHOOK_VERIFY_HASH;
 
-<<<<<<<<< Temporary merge branch 1
     @Value("${app.fetch_data_variations}")
     private String fetchDataVariations;
-
-    @Value("${app.api_key}")
-    private String apiKey;
-
-    @Value("${app.public_key}")
-    private String publicKey;
-=========
     @Value("${app.VTPASS_API_KEY}")
     private String VTPASS_API_KEY;
     @Value("${app.VTPASS_Public_Key}")
@@ -48,5 +40,4 @@ public class EnvironmentVariables {
     @Value("${app.buy_airtime_endpoint}")
     private String buy_airtime_endpoint;
 
->>>>>>>>> Temporary merge branch 2
 }
