@@ -2,9 +2,7 @@ package com.example.money_way.utils;
 
 import com.example.money_way.dto.request.TransferToBankDto;
 import com.example.money_way.dto.request.TransferToBankRequest;
-import com.example.money_way.dto.response.BanksResponse;
-import com.example.money_way.dto.response.TransferFeeResponse;
-import com.example.money_way.dto.response.TransferToBankResponse;
+import com.example.money_way.dto.response.*;
 import com.example.money_way.model.Bank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -29,6 +27,7 @@ public class RestTemplateUtil {
         HttpHeaders header = new HttpHeaders();
         header.add("api-key", environmentVariables.getVTPASS_API_KEY());
         header.add("secret-key", environmentVariables.getVTPASS_Secret_Key());
+        header.add("public-key", environmentVariables.getVTPASS_Public_Key());
         header.setContentType((MediaType.APPLICATION_JSON));
         return header;
     }
@@ -94,4 +93,11 @@ public class RestTemplateUtil {
                 HttpMethod.POST, entity, TransferToBankResponse.class, uriVariables).getBody();
     }
 
+    public DataVariationsResponse fetchDataVariations(String dataServiceProvider){
+        HttpHeaders header = getVTPASS_Header();
+        HttpEntity<?> entity = new HttpEntity<>(header);
+        return restTemplate.exchange(environmentVariables.getFetchDataVariations()+"serviceID="+dataServiceProvider+"-data",
+                HttpMethod.GET, entity, DataVariationsResponse.class).getBody();
+
+    }
 }

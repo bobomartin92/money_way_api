@@ -1,9 +1,10 @@
 package com.example.money_way.service.impl;
 
 import com.example.money_way.dto.response.ApiResponse;
-import com.example.money_way.dto.response.DataResponse;
+import com.example.money_way.dto.response.DataVariationsResponse;
 import com.example.money_way.service.BillService;
 import com.example.money_way.utils.EnvironmentVariables;
+import com.example.money_way.utils.RestTemplateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -18,17 +19,11 @@ public class BillServiceImpl implements BillService {
     private final EnvironmentVariables environmentVariables;
     private final RestTemplate restTemplate;
 
+    private final RestTemplateUtil restTemplateUtil;
+
     @Override
-    public ApiResponse<DataResponse> fetchDataVariations(String dataServiceProvider) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("api-key", environmentVariables.getApiKey());
-        headers.add("public-key", environmentVariables.getPublicKey());
-        headers.setContentType((MediaType.APPLICATION_JSON));
-
-        HttpEntity<ApiResponse> entity = new HttpEntity<ApiResponse>(headers);
-
-        DataResponse response = restTemplate.exchange(environmentVariables.getFetchDataVariations()+"serviceID="+dataServiceProvider+"-data",
-                HttpMethod.GET, entity, DataResponse.class).getBody();
+    public ApiResponse<DataVariationsResponse> fetchDataVariations(String dataServiceProvider) {
+        DataVariationsResponse response = restTemplateUtil.fetchDataVariations(dataServiceProvider);
          return  new ApiResponse<>("Success", null, response);
     }
 

@@ -1,9 +1,8 @@
 package com.example.money_way.service;
 
 import com.example.money_way.dto.response.ApiResponse;
-import com.example.money_way.dto.response.DataResponse;
-import com.example.money_way.enums.DataServiceProvider;
+import com.example.money_way.dto.response.DataVariationsResponse;
 
 public interface BillService {
-    ApiResponse<DataResponse> fetchDataVariations(String dataServiceProvider);
+    ApiResponse<DataVariationsResponse> fetchDataVariations(String dataServiceProvider);
 }

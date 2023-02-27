@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
-public class DataResponse<T>{
-    private String response_description;
+public class DataVariationsResponse<T>{
+    private String responseDescription;
     private T content;
 }
