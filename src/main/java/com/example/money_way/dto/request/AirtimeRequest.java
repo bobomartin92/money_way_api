@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
-public class AirtimeRequestFE {
+public class AirtimeRequest {
     private String requestId;
     private String serviceID;
     private String billersCode;
