@@ -26,10 +26,10 @@ public class SecurityConfiguration {
     AuthenticationEntryPoint authEntryPoint;
     private final String path = "/api/v1/auth";
     private final String[] AUTH_WHITELIST = {
-            path +"/login*/**", path + "/forgot-password", path + "/reset-password",
+            path +"/signin/**", path + "/forgot-password", path + "/reset-password",
             path + "/register", path + "/verify-code", path + "/references",
            "/v3/api-docs/**",  "/configuration/**",   "/swagger*/**", "/api/v1/wallet/transaction-webhook",
-            "/swagger-ui/**",  "/webjars/**",
+            "/swagger-ui/**",  "/webjars/**", "/api/v1/bills/verify-account",
 
             path + "/register", path + "/verify-code", path + "/references",
             path + "/forgot-password/**",
@@ -37,8 +37,7 @@ public class SecurityConfiguration {
             path + "/verify-token/**",
             path + "/sign-up",
             "/api/v1/transfers/bank/response",
-            path + "/verify-link/**",
-            path + "/sign-up"
+            path + "/verify-link"
     };
 
     private final JwtAuthFilter jwtAuthFilter;

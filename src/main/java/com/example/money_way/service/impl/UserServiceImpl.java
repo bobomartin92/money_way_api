@@ -111,6 +111,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(Role.ROLE_USER);
         user.setPin(passwordEncoder.encode(signUpDto.getPin()));
         String token = jwtUtils.generateSignUpConfirmationToken(signUpDto.getEmail());
+        user.setConfirmationToken(token);
         userRepository.save(user);
 
         String URL = "http://localhost:8084/api/v1/auth/verify-link/?token=" + token;
