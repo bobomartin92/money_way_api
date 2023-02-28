@@ -219,7 +219,7 @@ public class TransferServiceImpl implements TransferService {
             beneficiary1.setEmail(localTransfer.getEmail());
             beneficiary1.setName(receiver.get().getFirstName());
             beneficiary1.setPhoneNumber(receiver.get().getPhoneNumber());
-            beneficiary1.setTransactionType(TransactionType.LOCAL);
+            beneficiary1.setTransactionType(TransactionType.LocalTransfer);
             beneficiary1.setUserId(userId);
             beneficiaryRepository.save(beneficiary1);
         }
