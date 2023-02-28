@@ -1,5 +1,7 @@
 package com.example.money_way.service.impl;
 
+import com.example.money_way.dto.response.ApiResponse;
+import com.example.money_way.dto.response.DataVariationsResponse;
 import com.example.money_way.dto.request.AccountVerificationRequest;
 import com.example.money_way.dto.request.CreateWalletRequest;
 import com.example.money_way.dto.response.AccountVerificationResponse;
@@ -15,16 +17,13 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-
 @RequiredArgsConstructor
 @Service
 public class BillServiceImpl implements BillService {
-
+    private final EnvironmentVariables environmentVariables;
     private final RestTemplate restTemplate;
 
     private final RestTemplateUtil restTemplateUtil;
-    private final EnvironmentVariables environmentVariables;
-
 
     @Override
     public AccountVerificationResponse verifyElectricityAccount(AccountVerificationRequest request) {
@@ -34,5 +33,12 @@ public class BillServiceImpl implements BillService {
         AccountVerificationResponse response = restTemplate.exchange(environmentVariables.getVerifyElectricityAccountUrl(),
                 HttpMethod.POST, entity, AccountVerificationResponse.class).getBody();
         return response;
+    }
+    
+    
+     @Override
+    public ApiResponse<DataVariationsResponse> fetchDataVariations(String dataServiceProvider) {
+        DataVariationsResponse response = restTemplateUtil.fetchDataVariations(dataServiceProvider);
+         return  new ApiResponse<>("Success", null, response);
     }
 }
