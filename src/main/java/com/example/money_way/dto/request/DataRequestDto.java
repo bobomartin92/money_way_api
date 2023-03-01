@@ -9,11 +9,11 @@ import java.math.BigDecimal;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
-public class DataPurchaseRequest {
+public class DataRequestDto {
+    private String request_id;
     private String serviceID;
     private String billersCode;
-    private String variationCode;
+    private String variation_code;
     private BigDecimal amount;
-    private String phoneNumber;
-    private boolean saveBeneficiary;
+    private String phone;
 }

@@ -2,6 +2,7 @@ package com.example.money_way.service.impl;
 
 import com.example.money_way.dto.request.AccountVerificationRequest;
 import com.example.money_way.dto.request.DataPurchaseRequest;
+import com.example.money_way.dto.request.DataRequestDto;
 import com.example.money_way.dto.response.AccountVerificationResponse;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.dto.response.DataPurchaseResponse;
@@ -59,7 +60,14 @@ public class BillServiceImpl implements BillService {
     @Override
     public ApiResponse<DataPurchaseResponse> buyData(DataPurchaseRequest request) {
         String transactionReference = appUtil.getReference()+"DATA-BUNDLE";
-        request.setRequest_id(transactionReference);
+        DataRequestDto dataRequestDto = DataRequestDto.builder()
+                .request_id(transactionReference)
+                .serviceID(request.getServiceID())
+                .billersCode(request.getBillersCode())
+                .variation_code(request.getVariationCode())
+                .amount(request.getAmount())
+                .phone(request.getPhoneNumber())
+                .build();
 
         User user = appUtil.getLoggedInUser();
         Long userId = user.getId();
@@ -70,7 +78,7 @@ public class BillServiceImpl implements BillService {
 
         if (walletBalance.compareTo(request.getAmount()) >= 0){
 
-            DataPurchaseResponse response = restTemplateUtil.getDataPurchaseResponse(request);
+            DataPurchaseResponse response = restTemplateUtil.getDataPurchaseResponse(dataRequestDto);
 
             if (request.isSaveBeneficiary()){
                 saveBeneficiary(request, userId);
@@ -81,7 +89,7 @@ public class BillServiceImpl implements BillService {
                 walletRepository.save(wallet);
             }
 
-            saveTransaction(request, response, transactionReference, userId);
+            saveTransaction(response, userId);
 
             return new ApiResponse<>("Success", "Successful Transaction", response);
         }
@@ -90,34 +98,29 @@ public class BillServiceImpl implements BillService {
     }
 
     private void saveBeneficiary(DataPurchaseRequest request, Long userId) {
-        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiariesByPhoneNumber(request.getPhone());
+        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiariesByPhoneNumber(request.getPhoneNumber());
         if (savedBeneficiary.isEmpty()) {
             Beneficiary beneficiary = Beneficiary.builder()
                     .userId(userId)
-                    .phoneNumber(request.getPhone()).build();
+                    .phoneNumber(request.getPhoneNumber()).build();
             beneficiaryRepository.save(beneficiary);
         }
 
     }
-    private void saveTransaction(DataPurchaseRequest request,
-                                 DataPurchaseResponse response,
-                                 String transactionReference, Long userId) {
+    private void saveTransaction(DataPurchaseResponse response, Long userId) {
         Transaction transaction = Transaction.builder()
                 .transactionId((Long) response.getContent().get(0).get("transactionId"))
                 .userId(userId)
-                .currency("NIL")
-                .request_id(transactionReference)
-                .amount(request.getAmount())
+                .currency("NGN")
+                .status(response.getCode().equals("000") ? Status.SUCCESS : Status.FAILED)
+                .request_id(response.getRequestId())
+                .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
                 .build();
-        if (response.getCode().equals("000")){
-            transaction.setStatus(Status.SUCCESS);
-        }else {
-            transaction.setStatus(Status.FAILED);
-        }
 
         transactionRepository.save(transaction);
     }
 }
+
 
 
 
