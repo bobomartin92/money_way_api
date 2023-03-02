@@ -74,15 +74,6 @@ public class GlobalExceptionHandler {
 
     }
 
-    @ExceptionHandler(BeneficiaryAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
-    @ResponseBody
-    public ApiResponse<String> handleBeneficiaryAlreadyExistsException(BeneficiaryAlreadyExistsException ex){
-        logger.error(ex.getMessage());
-        return  new ApiResponse<>("Not allowed", "Error: " +ex.getMessage(),null);
-
-    }
-
     @ExceptionHandler(UnsupportedOperationException.class)
     @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
     @ResponseBody
