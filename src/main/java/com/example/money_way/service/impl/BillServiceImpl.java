@@ -54,7 +54,7 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public VTPassResponseDto buyAirtime(AirtimeRequest airtimeRequest) {
+    public VTPassResponse buyAirtime(AirtimeRequest airtimeRequest) {
         AirtimeRequestDto airtimeRequestDto = AirtimeRequestDto.builder()
                 .request_id(airtimeRequest.getRequestId())
                 .variation_code(airtimeRequest.getVariationCode())
@@ -71,11 +71,23 @@ public class BillServiceImpl implements BillService {
         //Extracting the response payload
         VTPassResponseDto vtPassResponseDto = appUtil.getObjectMapper().convertValue(vtPassApiResponse.getContent(), VTPassResponseDto.class);
 
+        //Update wallet only when transaction is successful
         if (vtPassResponseDto.getStatus().equalsIgnoreCase("delivered")) {
             updateWallet(appUtil.getLoggedInUser().getId(), vtPassResponseDto.getUnit_price());
         }
         saveTransaction(vtPassResponseDto);
-        return vtPassResponseDto;
+
+        return VTPassResponse.builder()
+                .productName(vtPassResponseDto.getProduct_name())
+                .uniqueElement(vtPassResponseDto.getUnique_element())
+                .unitPrice(vtPassResponseDto.getUnit_price())
+                .email(vtPassResponseDto.getEmail())
+                .phoneNumber(vtPassResponseDto.getPhone())
+                .quantity(vtPassResponseDto.getQuantity())
+                .status(vtPassResponseDto.getStatus())
+                .transactionId(vtPassResponseDto.getTransactionId())
+                .type(vtPassResponseDto.getType())
+                .build();
     }
 
     private void updateWallet(Long userId, double amount) {
@@ -91,7 +103,9 @@ public class BillServiceImpl implements BillService {
                 .amount(BigDecimal.valueOf(vtPassApiResponse.getUnit_price()))
                 .currency("NGN")
                 .description(vtPassApiResponse.getProduct_name())
-                .status(vtPassApiResponse.getStatus().equalsIgnoreCase("delivered") ? Status.SUCCESS : Status.FAILED)
+                .status(vtPassApiResponse.getStatus().equalsIgnoreCase("delivered") ? Status.SUCCESS :
+                        vtPassApiResponse.getStatus().equalsIgnoreCase("pending") ||
+                                vtPassApiResponse.getStatus().equalsIgnoreCase("initiated") ? Status.PENDING : Status.FAILED)
                 .paymentType(vtPassApiResponse.getType())
                 .build());
     }

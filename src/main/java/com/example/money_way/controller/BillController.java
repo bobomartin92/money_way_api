@@ -1,15 +1,12 @@
 package com.example.money_way.controller;
 
 import com.example.money_way.dto.request.AirtimeRequest;
-import com.example.money_way.dto.response.ApiResponse;
-import com.example.money_way.dto.response.DataVariationsResponse;
-import com.example.money_way.dto.response.VTPassResponseDto;
+import com.example.money_way.dto.response.*;
 import com.example.money_way.service.BillService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.example.money_way.dto.request.AccountVerificationRequest;
-import com.example.money_way.dto.response.AccountVerificationResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +29,7 @@ public class BillController {
     }
 
     @PostMapping("/buy-airtime")
-    public ResponseEntity<VTPassResponseDto> buyAirtime(AirtimeRequest airtimeRequest) {
+    public ResponseEntity<VTPassResponse> buyAirtime(AirtimeRequest airtimeRequest) {
         return ResponseEntity.ok(billService.buyAirtime(airtimeRequest));
     }
 }
