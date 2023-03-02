@@ -128,6 +128,12 @@ public class AppUtil {
         }
     }
 
+    public String getReference() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        return now.format(formatter);
+    }
+
     public ObjectMapper getObjectMapper(){
         return new ObjectMapper();
     }

@@ -74,4 +74,13 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(UnsupportedOperationException.class)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    @ResponseBody
+    public ApiResponse<String> handleUnsupportedOperationException(UnsupportedOperationException ex){
+        logger.error(ex.getMessage());
+        return  new ApiResponse<>("Failed", "Error: " +ex.getMessage(),null);
+
+    }
+
 }
