@@ -1,6 +1,7 @@
 package com.example.money_way.service.impl;
 
 
+import com.example.money_way.dto.request.AccountValidationDto;
 import com.example.money_way.dto.request.CreateWalletRequest;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.dto.response.CreateWalletResponse;
@@ -192,6 +193,18 @@ public class WalletServiceImpl implements WalletService {
 
             walletRepository.save(wallet);
         }
+    }
+
+    @Override
+    public ApiResponse validateAccount(AccountValidationDto validate) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + environmentVariables.getFLW_SECRET_KEY());
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<AccountValidationDto> entity = new HttpEntity<>(validate, headers);
+
+        return restTemplate.exchange(environmentVariables.getValidateAccountUrl(),
+                HttpMethod.POST, entity, ApiResponse.class).getBody();
     }
 
 }
