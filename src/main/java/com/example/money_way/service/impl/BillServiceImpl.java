@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Optional;
 
 @Service
@@ -44,8 +45,7 @@ public class BillServiceImpl implements BillService {
     public ApiResponse<TvPurchaseResponse> purchaseTvSubscription(TvPurchaseRequest request) {
         String transactionReference = appUtil.getReference() + "TV-SUBSCRIPTION";
         request.setRequest_id(transactionReference);
-        User user = appUtil.getLoggedInUser();
-        Long userId = user.getId();
+        Long userId = appUtil.getLoggedInUser().getId();
         Wallet wallet = walletRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Wallet Not Found"));
         BigDecimal walletBalance = wallet.getBalance();
             if (walletBalance.compareTo(request.getAmount()) >= 0) {
@@ -58,7 +58,8 @@ public class BillServiceImpl implements BillService {
             if (request.isSaveBeneficiary()) {
                 saveBeneficiary(request, userId);
             }
-            wallet.setBalance(BigDecimal.valueOf(walletBalance.doubleValue() - request.getAmount().doubleValue()));
+            wallet.setBalance(walletBalance.subtract(request.getAmount(),new MathContext(2)));
+
             walletRepository.save(wallet);
             saveTransaction(request,transactionReference,userId);
             return new ApiResponse<>("Success", "Successful Transaction", tvPurchaseResponse);
@@ -67,7 +68,7 @@ public class BillServiceImpl implements BillService {
     }
 
     private void saveBeneficiary(TvPurchaseRequest request, Long userId) {
-        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiariesByPhoneNumberAndUserId(request.getPhone(), userId);
+        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiariesByEmailAndUserId(request.getPhone(), userId);
         if (savedBeneficiary.isEmpty()) {
             Beneficiary beneficiary = Beneficiary.builder()
                     .userId(userId)

@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface BeneficiaryRepository extends JpaRepository<Beneficiary, Long> {
     Optional<Beneficiary> findByAccountNumberAndUserId(String accountNumber, Long userId);
-    Optional<Beneficiary>findBeneficiariesByPhoneNumberAndUserId(String phoneNumber, Long userId);
+    Optional<Beneficiary>findBeneficiariesByEmailAndUserId(String phoneNumber, Long userId);
 }

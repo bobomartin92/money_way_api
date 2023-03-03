@@ -14,5 +14,4 @@ public class TvPurchaseRequest {
     private String subscription_type;
     private int quantity;
     private boolean saveBeneficiary;
-
 }
