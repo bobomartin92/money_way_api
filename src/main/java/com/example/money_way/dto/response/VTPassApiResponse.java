@@ -15,7 +15,6 @@ public class VTPassApiResponse {
 
     private String code;
     private String requestId;
-    private String response_description;
     private Object content;
     private String amount;
 
