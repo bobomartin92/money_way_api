@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/bills")
@@ -28,7 +30,7 @@ public class BillController {
     }
 
     @PostMapping("/buy-data")
-    public ResponseEntity<ApiResponse<DataPurchaseResponse>> buyData(@RequestBody DataPurchaseRequest request){
+    public ResponseEntity<ApiResponse> buyData(@Valid @RequestBody DataPurchaseRequest request){
         return ResponseEntity.ok(billService.buyData(request));
     }
 

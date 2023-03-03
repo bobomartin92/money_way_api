@@ -8,7 +8,7 @@ import com.example.money_way.dto.response.DataPurchaseResponse;
 import com.example.money_way.dto.response.DataVariationsResponse;
 
 public interface BillService {
-    ApiResponse<DataPurchaseResponse> buyData(DataPurchaseRequest request);
+    ApiResponse buyData(DataPurchaseRequest request);
 
     AccountVerificationResponse verifyElectricityAccount(AccountVerificationRequest request);
 

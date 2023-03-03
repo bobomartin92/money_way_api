@@ -8,6 +8,8 @@ import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.dto.response.DataPurchaseResponse;
 import com.example.money_way.dto.response.DataVariationsResponse;
 import com.example.money_way.enums.Status;
+import com.example.money_way.exception.InsufficientFundsException;
+import com.example.money_way.exception.InvalidCredentialsException;
 import com.example.money_way.exception.ResourceNotFoundException;
 import com.example.money_way.model.Beneficiary;
 import com.example.money_way.model.Transaction;
@@ -24,10 +26,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -36,6 +40,7 @@ public class BillServiceImpl implements BillService {
     private final EnvironmentVariables environmentVariables;
     private final RestTemplate restTemplate;
     private final RestTemplateUtil restTemplateUtil;
+    private final PasswordEncoder passwordEncoder;
     private final BeneficiaryRepository beneficiaryRepository;
     private final TransactionRepository transactionRepository;
     private final WalletRepository walletRepository;
@@ -58,7 +63,7 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
-    public ApiResponse<DataPurchaseResponse> buyData(DataPurchaseRequest request) {
+    public ApiResponse buyData(DataPurchaseRequest request) {
         String transactionReference = appUtil.getReference()+"DATA-BUNDLE";
         DataRequestDto dataRequestDto = DataRequestDto.builder()
                 .request_id(transactionReference)
@@ -72,9 +77,14 @@ public class BillServiceImpl implements BillService {
         User user = appUtil.getLoggedInUser();
         Long userId = user.getId();
 
+        if (!passwordEncoder.matches(request.getPin(), user.getPin())) {
+            throw new InvalidCredentialsException("Incorrect Pin");
+        }
+
         Wallet wallet = walletRepository.findByUserId(userId)
-                .orElseThrow(()-> new ResourceNotFoundException("Wallet No Found"));
+                .orElseThrow(()-> new ResourceNotFoundException("Wallet Not Found"));
         BigDecimal walletBalance = wallet.getBalance();
+
 
         if (walletBalance.compareTo(request.getAmount()) >= 0){
 
@@ -91,10 +101,14 @@ public class BillServiceImpl implements BillService {
 
             saveTransaction(response, userId);
 
-            return new ApiResponse<>("Success", "Successful Transaction", response);
+            ApiResponse apiResponse = new ApiResponse<>();
+            apiResponse.setStatus("SUCCESS");
+            apiResponse.setMessage(response.getResponse_description());
+
+            return apiResponse;
         }
 
-        return new ApiResponse<>("Failed", "Insufficient Wallet Balance", null);
+        throw new InsufficientFundsException("Insufficient Funds");
     }
 
     private void saveBeneficiary(DataPurchaseRequest request, Long userId) {

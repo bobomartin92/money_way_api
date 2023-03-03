@@ -83,4 +83,13 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(InsufficientFundsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ApiResponse<String> handleInsufficientFundsException(InsufficientFundsException ex){
+        logger.error(ex.getMessage());
+        return  new ApiResponse<>("Failed", "Error: " +ex.getMessage(),null);
+
+    }
+
 }

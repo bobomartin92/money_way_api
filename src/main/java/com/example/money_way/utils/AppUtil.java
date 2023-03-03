@@ -149,11 +149,5 @@ public class AppUtil {
         return reference.substring(0, 10);
     }
 
-    public String getReference() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        return now.format(formatter);
-    }
-
 }
 
