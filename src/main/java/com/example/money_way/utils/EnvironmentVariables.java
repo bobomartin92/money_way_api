@@ -44,4 +44,7 @@ public class EnvironmentVariables {
     @Value("${app.buy_airtime_endpoint}")
     private String buy_airtime_endpoint;
 
+    @Value("${app.validate-account-number-url}")
+    private String validateAccountUrl;
+
 }
