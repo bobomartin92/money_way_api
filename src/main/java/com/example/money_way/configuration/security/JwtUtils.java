@@ -73,7 +73,7 @@ public class JwtUtils {
 
     public String generateSignUpConfirmationToken(String email){
         Date currentDate = new Date();
-        Date expirationDate = new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(2));
+        Date expirationDate = new Date(System.currentTimeMillis() + TimeUnit.HOURS.toMillis(24));
 
         return Jwts.builder()
                 .setSubject(email)

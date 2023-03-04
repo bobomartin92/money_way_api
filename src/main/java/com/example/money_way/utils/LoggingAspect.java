@@ -32,6 +32,11 @@ public class LoggingAspect {
         logger.info(joinPoint.getSignature().getName() + " method successfully executed. [" +joinPoint.getSignature().getDeclaringTypeName()+"]");
     }
 
+    @AfterReturning("execution (* com.example.money_way.utils.*.*(..))")
+    public void logAfter1(JoinPoint joinPoint) {
+        logger.info(joinPoint.getSignature().getName() + " method successfully executed. [" +joinPoint.getSignature().getDeclaringTypeName()+"]");
+    }
+
     /**
      * Logs any method that created or updated an entity successfully
      * @param joinPoint: has the details of the method being executed
