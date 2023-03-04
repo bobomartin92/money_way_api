@@ -5,6 +5,7 @@ import com.example.money_way.configuration.security.CustomUserDetailService;
 import com.example.money_way.configuration.security.JwtUtils;
 import com.example.money_way.dto.request.*;
 import com.example.money_way.dto.response.ApiResponse;
+import com.example.money_way.enums.Role;
 import com.example.money_way.exception.InvalidCredentialsException;
 import com.example.money_way.exception.UserNotFoundException;
 import com.example.money_way.exception.ValidationException;
@@ -34,7 +35,6 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final AppUtil appUtil;
     private final EmailService emailService;
-
     private final WalletService walletService;
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailService customUserDetailService;
@@ -46,7 +46,6 @@ public class UserServiceImpl implements UserService {
 
         String currentPassword = passwordResetDTO.getCurrentPassword();
         String newPassword = passwordResetDTO.getNewPassword();
-
 
         User user = appUtil.getLoggedInUser();
 
@@ -62,7 +61,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         emailService.sendEmail(user.getEmail(), "Update Password", "Your password has been updated  successfully. Ensure to keep it a secret. Never disclose your password to a third party.");
         return new ApiResponse<>( "Success", "Password reset successful", null);
-
 
     }
     
@@ -95,6 +93,7 @@ public class UserServiceImpl implements UserService {
         throw new UserNotFoundException("Error: No Account found! or Invalid Token");
     }
 
+
     @Override
     public ResponseEntity<ApiResponse> signUp(SignUpDto signUpDto) throws ValidationException {
 
@@ -109,11 +108,13 @@ public class UserServiceImpl implements UserService {
         user.setPhoneNumber(signUpDto.getPhoneNumber());
         user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
         user.setBvn(signUpDto.getBvn());
+        user.setRole(Role.ROLE_USER);
         user.setPin(passwordEncoder.encode(signUpDto.getPin()));
         String token = jwtUtils.generateSignUpConfirmationToken(signUpDto.getEmail());
+        user.setConfirmationToken(token);
         userRepository.save(user);
 
-        String URL = "http://localhost:8081/MoneyWay/api/v1/user/verify?token=" + token;
+        String URL = "http://localhost:8084/api/v1/auth/verify-link/?token=" + token;
         String link = "<h3>Hello "  + signUpDto.getFirstName()  +"<br> Click the link below to activate your account <a href=" + URL + "><br>Activate</a></h3>";
 
         emailService.sendEmail(signUpDto.getEmail(),"MoneyWay: Verify Your Account", link);
@@ -121,3 +122,4 @@ public class UserServiceImpl implements UserService {
         return ResponseEntity.ok(new ApiResponse<>("Successful", "SignUp Successful. Check your mail to activate your account", null));
     }
 }
+

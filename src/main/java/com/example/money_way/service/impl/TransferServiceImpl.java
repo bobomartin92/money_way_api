@@ -1,5 +1,6 @@
 package com.example.money_way.service.impl;
 
+import com.example.money_way.dto.request.LocalTransferDto;
 import com.example.money_way.dto.request.TransferToBankDto;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.dto.response.TransferFeeResponse;
@@ -8,6 +9,7 @@ import com.example.money_way.enums.Status;
 import com.example.money_way.enums.TransactionType;
 import com.example.money_way.exception.InvalidCredentialsException;
 import com.example.money_way.exception.InvalidTransactionException;
+import com.example.money_way.exception.ValidationException;
 import com.example.money_way.model.User;
 import com.example.money_way.model.Wallet;
 import com.example.money_way.model.Transaction;
@@ -69,7 +71,7 @@ public class TransferServiceImpl implements TransferService {
         BigDecimal total = transferToBankDto.getAmount().add(fee);
 
         //Checking if user balance is greater than amount + fee
-        if (wallet.getBalance().compareTo(total) < 0){
+        if (wallet.getBalance().compareTo(total) < 0) {
             throw new InvalidTransactionException("Insufficient wallet balance");
         }
 
@@ -86,14 +88,14 @@ public class TransferServiceImpl implements TransferService {
         );
 
         //checking if transfer not queued successfully, then retry transfer
-        if (transferToBankResponse != null && !transferToBankResponse.getStatus().equalsIgnoreCase("success")){
+        if (transferToBankResponse != null && !transferToBankResponse.getStatus().equalsIgnoreCase("success")) {
 
             transferToBankResponse = restTemplateUtil.retryTransferToBankWithFlutterwave(
                     transferToBankResponse);
         }
 
         //checking if transfer queued successfully
-        if (transferToBankResponse != null && transferToBankResponse.getStatus().equalsIgnoreCase("success")){
+        if (transferToBankResponse != null && transferToBankResponse.getStatus().equalsIgnoreCase("success")) {
             //Subtracting total from user wallet balance
             wallet.setBalance(wallet.getBalance().subtract(total));
             walletRepository.save(wallet);
@@ -123,16 +125,16 @@ public class TransferServiceImpl implements TransferService {
             transactionRepository.save(transaction);
 
             //Checking if user wants to save beneficiary
-            if (transferToBankDto.getSaveBeneficiary()){
+            if (transferToBankDto.getSaveBeneficiary()) {
                 Optional<Beneficiary> beneficiary = beneficiaryRepository
                         .findByAccountNumberAndUserId(transferToBankDto.getAccount_number(), user.getId());
 
-                if (beneficiary.isEmpty()){
+                if (beneficiary.isEmpty()) {
                     Beneficiary newBeneficiary = new Beneficiary();
                     newBeneficiary.setName(transferToBankDto.getBeneficiaryName());
                     newBeneficiary.setBankName(transferToBankDto.getAccount_bank());
                     newBeneficiary.setAccountNumber(transfer.getAccountNumber());
-                    newBeneficiary.setTransactionType(TransactionType.BANK);
+                    newBeneficiary.setTransactionType(TransactionType.ThirdPartyTransfer);
                     newBeneficiary.setUserId(user.getId());
 
                     beneficiaryRepository.save(newBeneficiary);
@@ -159,7 +161,7 @@ public class TransferServiceImpl implements TransferService {
                 .orElseThrow();
 
         //checking if transaction is successful and updating status
-        if (data.get("status").equals("SUCCESSFUL")){
+        if (data.get("status").equals("SUCCESSFUL")) {
             transaction.setStatus(Status.SUCCESS);
         } else {
             //adding amount and fee back to user wallet and updating status when transaction not successful
@@ -183,4 +185,59 @@ public class TransferServiceImpl implements TransferService {
         transaction.setResponseMessage((String) data.get("complete_message"));
         transactionRepository.save(transaction);
     }
-}
+
+
+    @Override
+    public ApiResponse localTransfer(LocalTransferDto localTransfer) {
+
+        User user = appUtil.getLoggedInUser();
+
+        Long userId = user.getId();
+        Optional<Wallet> wallet1 = walletRepository.findByUserId(userId);
+
+        if (!passwordEncoder.matches(localTransfer.getPin(), user.getPin()))
+            throw new ValidationException("Pin is Incorrect!");
+
+        if (wallet1.get().getBalance().compareTo(localTransfer.getAmount()) < 0)
+            throw new UnsupportedOperationException("Insufficient funds!");
+
+        Optional<User> receiver = userRepository.findByEmail(localTransfer.getEmail());
+
+        Long receiverId = receiver.get().getId();
+
+        Optional<Wallet> wallet2 = walletRepository.findById(receiverId);
+
+        if (localTransfer.isSaveBeneficiary()) {
+
+            Optional<Beneficiary> beneficiary = Optional.ofNullable(beneficiaryRepository.findByEmailAndUserId(localTransfer.getEmail(), userId));
+
+            if (beneficiary.isEmpty()) {
+
+                Beneficiary beneficiary1 = new Beneficiary();
+                beneficiary1.setEmail(localTransfer.getEmail());
+                beneficiary1.setName(receiver.get().getFirstName());
+                beneficiary1.setPhoneNumber(receiver.get().getPhoneNumber());
+                beneficiary1.setTransactionType(TransactionType.LocalTransfer);
+                beneficiary1.setUserId(userId);
+                beneficiaryRepository.save(beneficiary1);
+            }
+        }
+            wallet1.get().setBalance((wallet1.get().getBalance().subtract(localTransfer.getAmount())));
+            walletRepository.save(wallet1.get());
+
+            wallet2.get().setBalance(wallet2.get().getBalance().add(localTransfer.getAmount()));
+            walletRepository.save(wallet2.get());
+
+            Transfer transfer = new Transfer();
+            transfer.setAmount(localTransfer.getAmount());
+            transfer.setEmail(localTransfer.getEmail());
+            transfer.setDescription(localTransfer.getDescription());
+            transfer.setUserId(userId);
+            transfer.setReferenceId(appUtil.getReference());
+            transferRepository.save(transfer);
+
+            return new ApiResponse("Successful", "Transaction completed successfully", wallet1);
+        }
+
+    }
+

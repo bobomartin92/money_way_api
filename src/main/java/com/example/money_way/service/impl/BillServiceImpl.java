@@ -1,12 +1,14 @@
 package com.example.money_way.service.impl;
 
+import com.example.money_way.dto.request.AccountVerificationRequest;
 import com.example.money_way.dto.request.TvPurchaseRequest;
+import com.example.money_way.dto.response.AccountVerificationResponse;
 import com.example.money_way.dto.response.ApiResponse;
+import com.example.money_way.dto.response.DataVariationsResponse;
 import com.example.money_way.dto.response.TvPurchaseResponse;
 import com.example.money_way.exception.ResourceNotFoundException;
 import com.example.money_way.model.Beneficiary;
 import com.example.money_way.model.Transaction;
-import com.example.money_way.model.User;
 import com.example.money_way.model.Wallet;
 import com.example.money_way.repository.BeneficiaryRepository;
 import com.example.money_way.repository.TransactionRepository;
@@ -19,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -68,7 +69,7 @@ public class BillServiceImpl implements BillService {
     }
 
     private void saveBeneficiary(TvPurchaseRequest request, Long userId) {
-        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiariesByEmailAndUserId(request.getPhone(), userId);
+        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiariesByServiceIdAndUserId(request.getServiceID(), userId);
         if (savedBeneficiary.isEmpty()) {
             Beneficiary beneficiary = Beneficiary.builder()
                     .userId(userId)
@@ -84,4 +85,20 @@ public class BillServiceImpl implements BillService {
                 .amount(request.getAmount()).build();
                 transactionRepository.save(transaction);
      }
+
+    public AccountVerificationResponse verifyElectricityAccount(AccountVerificationRequest request) {
+        HttpHeaders headers = restTemplateUtil.getVTPASS_Header();
+        HttpEntity<AccountVerificationRequest> entity = new HttpEntity<>(request, headers);
+
+        AccountVerificationResponse response = restTemplate.exchange(environmentVariables.getVerifyElectricityAccountUrl(),
+                HttpMethod.POST, entity, AccountVerificationResponse.class).getBody();
+        return response;
+    }
+    
+    
+     @Override
+    public ApiResponse<DataVariationsResponse> fetchDataVariations(String dataServiceProvider) {
+        DataVariationsResponse response = restTemplateUtil.fetchDataVariations(dataServiceProvider);
+         return  new ApiResponse<>("Success", null, response);
+    }
 }

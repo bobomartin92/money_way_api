@@ -38,6 +38,12 @@ public class EnvironmentVariables {
     @Value("${app.WEBHOOK_VERIFY_HASH}")
     private String WEBHOOK_VERIFY_HASH;
 
+    @Value("${app.fetch_data_variations}")
+    private String fetchDataVariations;
+
+    @Value("${app.vt-pass-verify-account-url}")
+    private String verifyElectricityAccountUrl;
+
     @Value("${app.VTPASS_API_KEY}")
     private String VTPASS_API_KEY;
     @Value("${app.VTPASS_Public_Key}")

@@ -2,8 +2,11 @@ package com.example.money_way.dto.response;
 
 import lombok.Data;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
-public class TvPurchaseResponse <T>{
+public class TvPurchaseResponse {
     private String code;
-    private T content;
+    private List<Map<String,?>> content;
 }
