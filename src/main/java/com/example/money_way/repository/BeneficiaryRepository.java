@@ -13,6 +13,7 @@ public interface BeneficiaryRepository extends JpaRepository<Beneficiary, Long> 
             nativeQuery = true)
     List<Beneficiary> findAllByUserIdAndTransactionType(Long userId, String transactionType);
     Beneficiary findByEmailAndUserId (String email, Long Id);
+    Optional<Beneficiary> findByMeterNumber(String meterNumber);
 
 }
 
