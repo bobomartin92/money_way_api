@@ -1,5 +1,6 @@
 package com.example.money_way.controller;
 
+import com.example.money_way.dto.request.AccountValidationDto;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.dto.webhook.VerifyTransaction;
 import com.example.money_way.dto.response.ViewWalletResponseDto;
@@ -24,5 +25,9 @@ public class WalletController {
     @PostMapping("/transaction-webhook")
     public ResponseEntity<String> processWebhookEvent(@RequestBody WebHookResponse<VerifyTransaction> webHookResponse) {
         return walletService.processWebHookEvent(webHookResponse);
+    }
+    @PostMapping("/validate-account")
+    public ResponseEntity<ApiResponse> validateAccount(@RequestBody AccountValidationDto accountValidationDto) {
+        return ResponseEntity.ok().body(walletService.validateAccount(accountValidationDto));
     }
 }
