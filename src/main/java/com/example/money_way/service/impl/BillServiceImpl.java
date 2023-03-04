@@ -1,25 +1,7 @@
 package com.example.money_way.service.impl;
 
-import com.example.money_way.dto.request.ElectricityBillRequest;
-import com.example.money_way.dto.request.ElectricityRequestDto;
+import com.example.money_way.dto.request.*;
 import com.example.money_way.dto.response.*;
-import com.example.money_way.dto.request.AccountVerificationRequest;
-import com.example.money_way.dto.request.CreateWalletRequest;
-import com.example.money_way.dto.request.DataPurchaseRequest;
-import com.example.money_way.dto.request.DataRequestDto;
-import com.example.money_way.dto.response.AccountVerificationResponse;
-import com.example.money_way.dto.response.ApiResponse;
-import com.example.money_way.enums.Status;
-import com.example.money_way.exception.InsufficientFundsException;
-import com.example.money_way.model.Beneficiary;
-import com.example.money_way.model.Transaction;
-import com.example.money_way.model.User;
-import com.example.money_way.model.Wallet;
-import com.example.money_way.repository.BeneficiaryRepository;
-import com.example.money_way.repository.TransactionRepository;
-import com.example.money_way.repository.WalletRepository;
-import com.example.money_way.dto.response.DataPurchaseResponse;
-import com.example.money_way.dto.response.DataVariationsResponse;
 import com.example.money_way.enums.Status;
 import com.example.money_way.exception.InsufficientFundsException;
 import com.example.money_way.exception.InvalidCredentialsException;
@@ -46,10 +28,6 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import java.math.BigDecimal;
-import java.util.Map;
-import java.util.Optional;
-
 @RequiredArgsConstructor
 @Service
 public class BillServiceImpl implements BillService {
@@ -62,10 +40,6 @@ public class BillServiceImpl implements BillService {
 
     private final TransactionRepository transactionRepository;
     private final PasswordEncoder passwordEncoder;
-    private final BeneficiaryRepository beneficiaryRepository;
-    private final TransactionRepository transactionRepository;
-    private final WalletRepository walletRepository;
-    private final AppUtil appUtil;
 
     @Override
     public AccountVerificationResponse verifyElectricityAccount(AccountVerificationRequest request) {
