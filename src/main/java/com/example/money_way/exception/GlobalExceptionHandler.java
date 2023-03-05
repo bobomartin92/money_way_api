@@ -90,5 +90,4 @@ public class GlobalExceptionHandler {
         return  new ApiResponse<>("Failed", "Error: " +ex.getMessage(),null);
 
     }
-
 }

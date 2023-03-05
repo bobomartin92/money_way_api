@@ -1,13 +1,11 @@
 package com.example.money_way.service.impl;
 
-import com.example.money_way.dto.request.ElectricityBillRequest;
-import com.example.money_way.dto.request.ElectricityRequestDto;
+import com.example.money_way.dto.request.*;
 import com.example.money_way.dto.response.*;
-import com.example.money_way.dto.request.AccountVerificationRequest;
-import com.example.money_way.dto.request.CreateWalletRequest;
-import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.enums.Status;
 import com.example.money_way.exception.InsufficientFundsException;
+import com.example.money_way.exception.InvalidCredentialsException;
+import com.example.money_way.exception.ResourceNotFoundException;
 import com.example.money_way.model.Beneficiary;
 import com.example.money_way.model.Transaction;
 import com.example.money_way.model.User;
@@ -23,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,13 +33,13 @@ import java.util.Optional;
 public class BillServiceImpl implements BillService {
     private final EnvironmentVariables environmentVariables;
     private final RestTemplate restTemplate;
-
     private final RestTemplateUtil restTemplateUtil;
     private final AppUtil appUtil;
     private final WalletRepository walletRepository;
     private final BeneficiaryRepository beneficiaryRepository;
 
     private final TransactionRepository transactionRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public AccountVerificationResponse verifyElectricityAccount(AccountVerificationRequest request) {
@@ -123,5 +121,77 @@ public class BillServiceImpl implements BillService {
                 .meterNumber(request.getBillersCode())
                 .build();
         beneficiaryRepository.save(beneficiary);
+    }
+
+    @Override
+    public ApiResponse buyData(DataPurchaseRequest request) {
+        String transactionReference = appUtil.getReference()+"DATA-BUNDLE";
+        DataRequestDto dataRequestDto = DataRequestDto.builder()
+                .request_id(transactionReference)
+                .serviceID(request.getServiceID())
+                .billersCode(request.getBillersCode())
+                .variation_code(request.getVariationCode())
+                .amount(request.getAmount())
+                .phone(request.getPhoneNumber())
+                .build();
+
+        User user = appUtil.getLoggedInUser();
+        Long userId = user.getId();
+
+        if (!passwordEncoder.matches(request.getPin(), user.getPin())) {
+            throw new InvalidCredentialsException("Incorrect Pin");
+        }
+
+        Wallet wallet = walletRepository.findByUserId(userId)
+                .orElseThrow(()-> new ResourceNotFoundException("Wallet Not Found"));
+        BigDecimal walletBalance = wallet.getBalance();
+
+
+        if (walletBalance.compareTo(request.getAmount()) >= 0){
+
+            DataPurchaseResponse response = restTemplateUtil.getDataPurchaseResponse(dataRequestDto);
+
+            if (request.isSaveBeneficiary()){
+                saveBeneficiary(request, userId);
+            }
+
+            if (response.getCode().equals("000")){
+                wallet.setBalance(BigDecimal.valueOf(walletBalance.doubleValue() - request.getAmount().doubleValue()));
+                walletRepository.save(wallet);
+            }
+
+            saveTransaction(response, userId);
+
+            ApiResponse apiResponse = new ApiResponse<>();
+            apiResponse.setStatus("SUCCESS");
+            apiResponse.setMessage(response.getResponse_description());
+
+            return apiResponse;
+        }
+
+        throw new InsufficientFundsException("Insufficient Funds");
+    }
+
+    private void saveBeneficiary(DataPurchaseRequest request, Long userId) {
+        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiariesByPhoneNumber(request.getPhoneNumber());
+        if (savedBeneficiary.isEmpty()) {
+            Beneficiary beneficiary = Beneficiary.builder()
+                    .userId(userId)
+                    .phoneNumber(request.getPhoneNumber()).build();
+            beneficiaryRepository.save(beneficiary);
+        }
+
+    }
+    private void saveTransaction(DataPurchaseResponse response, Long userId) {
+        Transaction transaction = Transaction.builder()
+                .transactionId((Long) response.getContent().get(0).get("transactionId"))
+                .userId(userId)
+                .currency("NGN")
+                .status(response.getCode().equals("000") ? Status.SUCCESS : Status.FAILED)
+                .request_id(response.getRequestId())
+                .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
+                .build();
+
+        transactionRepository.save(transaction);
     }
 }
