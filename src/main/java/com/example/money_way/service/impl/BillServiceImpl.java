@@ -1,6 +1,7 @@
 package com.example.money_way.service.impl;
 
 import com.example.money_way.dto.request.AccountVerificationRequest;
+import com.example.money_way.dto.request.CustomerRequestDtoForTvSubscription;
 import com.example.money_way.dto.request.TvPurchaseRequest;
 import com.example.money_way.dto.response.AccountVerificationResponse;
 import com.example.money_way.dto.response.ApiResponse;
@@ -18,6 +19,7 @@ import com.example.money_way.utils.AppUtil;
 import com.example.money_way.utils.EnvironmentVariables;
 import com.example.money_way.utils.RestTemplateUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -43,9 +45,17 @@ public class BillServiceImpl implements BillService {
 
 
     @Override
-    public ApiResponse<TvPurchaseResponse> purchaseTvSubscription(TvPurchaseRequest request) {
+    public ApiResponse<TvPurchaseResponse> purchaseTvSubscription(CustomerRequestDtoForTvSubscription request) {
         String transactionReference = appUtil.getReference() + "TV-SUBSCRIPTION";
-        request.setRequest_id(transactionReference);
+        TvPurchaseRequest vtPassRequest = TvPurchaseRequest.builder()
+                .phone(request.getPhone())
+                .billersCode(request.getDecoderOrSmartCardNumber())
+                .request_id(transactionReference)
+                .subscription_type(request.getSubscriptionType())
+                .serviceID(request.getDecoderName())
+                .variation_code(request.getSubscriptionPackage())
+                .build();
+
         Long userId = appUtil.getLoggedInUser().getId();
         Wallet wallet = walletRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Wallet Not Found"));
         BigDecimal walletBalance = wallet.getBalance();
@@ -53,14 +63,13 @@ public class BillServiceImpl implements BillService {
 
                HttpHeaders headers = restTemplateUtil.getVTPASS_Header();
 
-            HttpEntity<TvPurchaseRequest> entity = new HttpEntity<>(request, headers);
+            HttpEntity<TvPurchaseRequest> entity = new HttpEntity<>(vtPassRequest, headers);
             TvPurchaseResponse tvPurchaseResponse = restTemplate.exchange(environmentVariables.getPurchaseSubscriptionUrl(),
                     HttpMethod.POST, entity, TvPurchaseResponse.class).getBody();
             if (request.isSaveBeneficiary()) {
-                saveBeneficiary(request, userId);
+                saveBeneficiary(vtPassRequest, userId);
             }
             wallet.setBalance(walletBalance.subtract(request.getAmount(),new MathContext(2)));
-
             walletRepository.save(wallet);
             saveTransaction(request,transactionReference,userId);
             return new ApiResponse<>("Success", "Successful Transaction", tvPurchaseResponse);
@@ -69,7 +78,7 @@ public class BillServiceImpl implements BillService {
     }
 
     private void saveBeneficiary(TvPurchaseRequest request, Long userId) {
-        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiariesByServiceIdAndUserId(request.getServiceID(), userId);
+        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiariesBybillersCodeAndUserId(request.getBillersCode(), userId);
         if (savedBeneficiary.isEmpty()) {
             Beneficiary beneficiary = Beneficiary.builder()
                     .userId(userId)
@@ -78,7 +87,7 @@ public class BillServiceImpl implements BillService {
         }
     }
 
-    private void saveTransaction(TvPurchaseRequest request, String transactionReference, Long userId) {
+    private void saveTransaction(CustomerRequestDtoForTvSubscription request, String transactionReference, Long userId) {
         Transaction transaction = Transaction.builder()
                 .userId(userId).currency("NIL")
                 .request_id(transactionReference)

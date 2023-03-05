@@ -1,6 +1,7 @@
 package com.example.money_way.controller;
 
 import com.example.money_way.dto.request.AccountVerificationRequest;
+import com.example.money_way.dto.request.CustomerRequestDtoForTvSubscription;
 import com.example.money_way.dto.request.TvPurchaseRequest;
 import com.example.money_way.dto.response.AccountVerificationResponse;
 import com.example.money_way.dto.response.ApiResponse;
@@ -20,7 +21,7 @@ public class BillController {
     private final BillService billService;
 
     @PostMapping("/tvSubscription")
-    public ResponseEntity<ApiResponse<TvPurchaseResponse>> purchaseTvSubscription(@RequestBody TvPurchaseRequest request){
+    public ResponseEntity<ApiResponse<TvPurchaseResponse>> purchaseTvSubscription(@RequestBody CustomerRequestDtoForTvSubscription request){
         return ResponseEntity.ok(billService.purchaseTvSubscription(request));
     }
     @PostMapping("/verify-account")

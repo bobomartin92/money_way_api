@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface BeneficiaryRepository extends JpaRepository<Beneficiary, Long> {
     Optional<Beneficiary> findByAccountNumberAndUserId(String accountNumber, Long userId);
-    Optional<Beneficiary>findBeneficiariesByServiceIdAndUserId(String phoneNumber, Long userId);
+    Optional<Beneficiary>findBeneficiariesBybillersCodeAndUserId(String decoderNumber, Long userId);
 
     @Query(value = "SELECT * FROM beneficiary_tbl AS b WHERE b.user_id = ?1 AND b.transaction_type ILIKE %?2%",
             nativeQuery = true)
