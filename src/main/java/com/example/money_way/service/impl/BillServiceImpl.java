@@ -19,7 +19,6 @@ import com.example.money_way.utils.AppUtil;
 import com.example.money_way.utils.EnvironmentVariables;
 import com.example.money_way.utils.RestTemplateUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -71,7 +70,7 @@ public class BillServiceImpl implements BillService {
             }
             wallet.setBalance(walletBalance.subtract(request.getAmount(),new MathContext(2)));
             walletRepository.save(wallet);
-            saveTransaction(request,transactionReference,userId);
+            saveTransactionForTvSubscription(request,transactionReference,userId);
             return new ApiResponse<>("Success", "Successful Transaction", tvPurchaseResponse);
         }
         return new ApiResponse<>("Failed","Insufficient Wallet Balance",null);
@@ -87,7 +86,7 @@ public class BillServiceImpl implements BillService {
         }
     }
 
-    private void saveTransaction(CustomerRequestDtoForTvSubscription request, String transactionReference, Long userId) {
+    private void saveTransactionForTvSubscription(CustomerRequestDtoForTvSubscription request, String transactionReference, Long userId) {
         Transaction transaction = Transaction.builder()
                 .userId(userId).currency("NIL")
                 .request_id(transactionReference)
