@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 @Data
 @Builder
-public class TvPurchaseRequest {
+public class VtPassTvPurchaseRequest {
     private String request_id;
     private String serviceID;
     private String billersCode;

@@ -24,7 +24,9 @@ import javax.persistence.Column;
 public class Beneficiary extends Base{
     private String name;
     private String accountNumber;
+    private String SmartCardNumber;
     private String phoneNumber;
+    private String meterNumber;
     private String email;
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
