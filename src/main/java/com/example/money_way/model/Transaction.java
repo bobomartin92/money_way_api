@@ -33,6 +33,8 @@ public class Transaction {
     @Column(nullable = false)
     private Long transactionId;
 
+    private String request_id;
+
     @Column(nullable = false)
     private String currency;
     @Column(nullable = false)

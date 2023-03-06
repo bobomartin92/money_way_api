@@ -32,6 +32,9 @@ public class EnvironmentVariables {
     @Value("${app.purchase_Tv-Subscription}")
     private String purchaseSubscriptionUrl;
 
+    @Value("${app.purchase_data}")
+    private String purchaseDataUrl;
+
     @Value("${app.verify_transaction_endpoint}")
     private String verifyTransactionEndpoint;
 
@@ -46,13 +49,16 @@ public class EnvironmentVariables {
 
     @Value("${app.VTPASS_API_KEY}")
     private String VTPASS_API_KEY;
+
     @Value("${app.VTPASS_Public_Key}")
     private String VTPASS_Public_Key;
+
     @Value("${app.VTPASS_Secret_Key}")
     private String VTPASS_Secret_Key;
+
     @Value("${app.buy_airtime_endpoint}")
     private String buy_airtime_endpoint;
-
+    
     @Value("${app.electricity-bill-url}")
     private String electricityBillsUrl;
 
