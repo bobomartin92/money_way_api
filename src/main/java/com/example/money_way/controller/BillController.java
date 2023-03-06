@@ -1,22 +1,22 @@
 package com.example.money_way.controller;
 
-import com.example.money_way.dto.request.AirtimeRequest;
-import com.example.money_way.dto.response.*;
 
+import com.example.money_way.dto.request.AccountVerificationRequest;
+import com.example.money_way.dto.request.AirtimeRequest;
+import com.example.money_way.dto.request.DataPurchaseRequest;
 import com.example.money_way.dto.request.ElectricityBillRequest;
+import com.example.money_way.dto.response.AccountVerificationResponse;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.dto.response.DataVariationsResponse;
-
+import com.example.money_way.dto.response.VTPassResponse;
 import com.example.money_way.service.BillService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.money_way.dto.request.AccountVerificationRequest;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +38,12 @@ public class BillController {
     public ResponseEntity<VTPassResponse> buyAirtime(AirtimeRequest airtimeRequest) {
         return ResponseEntity.ok(billService.buyAirtime(airtimeRequest));
     }
+
+    @PostMapping("/buy-data")
+    public ResponseEntity<ApiResponse> buyData(@Valid @RequestBody DataPurchaseRequest request){
+        return ResponseEntity.ok(billService.buyData(request));
+    }
+
     @PostMapping("/purchase-EKEDC-electricity")
     public ResponseEntity<ApiResponse> purchaseElectricityEKEDC(@RequestBody ElectricityBillRequest electricityRequest) {
         ApiResponse response = billService.payElectricityBill(electricityRequest);
