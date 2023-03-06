@@ -109,7 +109,7 @@ public class BillServiceImpl implements BillService {
                 .transactionId(Long.valueOf(requestId))
                 .currency("NGN")
                 .amount(BigDecimal.valueOf(Double.parseDouble(billResponse.getAmount())))
-                .status(billResponse.getCode().equals("000") ? Status.SUCCESS : Status.FAILED)
+                .status(billResponse.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))
                 .virtualAccountRef(userWallet.getVirtualAccountRef())
                 .build();
         transactionRepository.save(transaction);

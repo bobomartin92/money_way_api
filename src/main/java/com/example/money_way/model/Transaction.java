@@ -39,7 +39,6 @@ public class Transaction {
     private String currency;
     @Column(nullable = false)
     private BigDecimal amount;
-    @Column(nullable = false)
     private String virtualAccountRef;
     private String description;
     @Enumerated(EnumType.STRING)
