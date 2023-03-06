@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     public ApiResponse<String> handleInsufficientFundsException(InsufficientFundsException ex){
         logger.error(ex.getMessage());
-        return  new ApiResponse<>("Failed", "Error: " +ex.getMessage(),null);
+        return  new ApiResponse<>("Failed", ex.getMessage(),null);
 
     }
 }

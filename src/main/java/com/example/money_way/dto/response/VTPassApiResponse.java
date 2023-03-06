@@ -1,19 +1,21 @@
 package com.example.money_way.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
-import java.util.List;
-import java.util.Map;
+import lombok.NoArgsConstructor;
 
 @Data
+@Builder
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DataPurchaseResponse {
+@NoArgsConstructor
+public class VTPassApiResponse {
+
     private String code;
-    private Map<String, ?> content;
-    private String response_description;
     private String requestId;
+    private VTPassApiContent content;
     private String amount;
-    private Map<String, ?> transaction_date;
-    private String purchased_code;
+
 }
