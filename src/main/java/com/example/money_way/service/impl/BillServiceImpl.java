@@ -78,13 +78,14 @@ public class BillServiceImpl implements BillService {
                 HttpMethod.POST, entity, VTPassApiResponse.class).getBody();
 
         //Extracting the response payload
-        VTPassResponseDto vtPassResponseDto = appUtil.getObjectMapper().convertValue(vtPassApiResponse.getContent(), VTPassResponseDto.class);
+        VTPassApiContent vtPassApiContent = appUtil.getObjectMapper().convertValue(vtPassApiResponse.getContent(), VTPassApiContent.class);
+        VTPassResponseDto vtPassResponseDto = appUtil.getObjectMapper().convertValue(vtPassApiContent.getTransactions(), VTPassResponseDto.class);
 
         //Update wallet only when transaction is successful
         if (vtPassResponseDto.getStatus().equalsIgnoreCase("delivered")) {
             updateWallet(appUtil.getLoggedInUser().getId(), vtPassResponseDto.getUnit_price());
         }
-        saveTransaction(vtPassResponseDto);
+        saveTransaction(vtPassResponseDto, vtPassApiResponse.getRequestId());
 
         return VTPassResponse.builder()
                 .productName(vtPassResponseDto.getProduct_name())
@@ -106,9 +107,10 @@ public class BillServiceImpl implements BillService {
         walletRepository.save(userWallet);
     }
 
-    private void saveTransaction(VTPassResponseDto vtPassApiResponse) {
+    private void saveTransaction(VTPassResponseDto vtPassApiResponse, String requestId) {
         transactionRepository.save(Transaction.builder()
-                .transactionId(Long.parseLong(vtPassApiResponse.getTransactionId()))
+                .transactionId(Long.parseLong(requestId))
+                .userId(appUtil.getLoggedInUser().getId())
                 .amount(BigDecimal.valueOf(vtPassApiResponse.getUnit_price()))
                 .currency("NGN")
                 .description(vtPassApiResponse.getProduct_name())

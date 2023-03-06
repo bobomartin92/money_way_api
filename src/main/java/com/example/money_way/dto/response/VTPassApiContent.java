@@ -11,11 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @NoArgsConstructor
-public class VTPassApiResponse {
-
-    private String code;
-    private String requestId;
-    private VTPassApiContent content;
-    private String amount;
-
+public class VTPassApiContent {
+    private VTPassResponseDto transactions;
 }

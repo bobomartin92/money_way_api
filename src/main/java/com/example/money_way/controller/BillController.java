@@ -5,11 +5,10 @@ import com.example.money_way.dto.request.AccountVerificationRequest;
 import com.example.money_way.dto.request.AirtimeRequest;
 import com.example.money_way.dto.request.DataPurchaseRequest;
 import com.example.money_way.dto.request.ElectricityBillRequest;
-import com.example.money_way.dto.response.AccountVerificationResponse;
-import com.example.money_way.dto.response.ApiResponse;
-import com.example.money_way.dto.response.DataVariationsResponse;
-import com.example.money_way.dto.response.VTPassResponse;
+import com.example.money_way.dto.response.*;
+import com.example.money_way.dto.webhook.VTPassWebhookResponse;
 import com.example.money_way.service.BillService;
+import com.example.money_way.service.VTPassWebhookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +23,7 @@ import javax.validation.Valid;
 public class BillController {
 
     private final BillService billService;
+    private final VTPassWebhookService vtPassWebhookService;
     @PostMapping("/verify-account")
     public ResponseEntity<AccountVerificationResponse> VerifyElectricityAccount(@RequestBody AccountVerificationRequest request){
        return ResponseEntity.ok(billService.verifyElectricityAccount(request));
@@ -48,5 +48,10 @@ public class BillController {
     public ResponseEntity<ApiResponse> purchaseElectricityEKEDC(@RequestBody ElectricityBillRequest electricityRequest) {
         ApiResponse response = billService.payElectricityBill(electricityRequest);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/bills-webhook-vtpass")
+    public ResponseEntity<VTPassWebhookResponse> processWebHook(@RequestBody VTPassApiResponse vtPassApiResponse) {
+        return vtPassWebhookService.billsWebhookHandler(vtPassApiResponse);
     }
 }
