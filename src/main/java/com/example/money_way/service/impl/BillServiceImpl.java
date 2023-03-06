@@ -156,7 +156,7 @@ public class BillServiceImpl implements BillService {
             }
 
             if (response.getCode().equals("000")){
-                wallet.setBalance(BigDecimal.valueOf(walletBalance.doubleValue() - request.getAmount().doubleValue()));
+                wallet.setBalance(walletBalance.subtract(request.getAmount()));
                 walletRepository.save(wallet);
             }
 
