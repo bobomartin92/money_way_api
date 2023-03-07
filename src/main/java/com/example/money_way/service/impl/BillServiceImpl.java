@@ -303,7 +303,6 @@ public class BillServiceImpl implements BillService {
     }
     private void saveTransaction(DataPurchaseResponse response, Long userId) {
         Transaction transaction = Transaction.builder()
-//                .transactionId((Long) response.getContent().get("transactionId"))
                 .userId(userId)
                 .currency("NGN")
                 .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))
