@@ -21,15 +21,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
-@Service
+
 @RequiredArgsConstructor
+@Service
 public class BillServiceImpl implements BillService {
     private final EnvironmentVariables environmentVariables;
     private final RestTemplate restTemplate;
@@ -40,6 +43,7 @@ public class BillServiceImpl implements BillService {
 
     private final TransactionRepository transactionRepository;
     private final PasswordEncoder passwordEncoder;
+
 
     @Override
     public ApiResponse<TvPurchaseResponse> purchaseTvSubscription(CustomerRequestDtoForTvSubscription request) {
@@ -116,6 +120,63 @@ public class BillServiceImpl implements BillService {
     }
 
     @Override
+    public VTPassResponse buyAirtime(AirtimeRequest airtimeRequest) {
+        AirtimeRequestDto airtimeRequestDto = AirtimeRequestDto.builder()
+                .request_id(airtimeRequest.getRequestId())
+                .variation_code(airtimeRequest.getVariationCode())
+                .serviceID(airtimeRequest.getServiceID())
+                .phone(airtimeRequest.getPhoneNumber())
+                .amount(airtimeRequest.getAmount())
+                .billersCode(airtimeRequest.getBillersCode())
+                .build();
+
+        HttpEntity<AirtimeRequestDto> entity = new HttpEntity<>(airtimeRequestDto, restTemplateUtil.getVTPASS_Header());
+        VTPassApiResponse vtPassApiResponse = restTemplate.exchange(environmentVariables.getBuy_airtime_endpoint(),
+                HttpMethod.POST, entity, VTPassApiResponse.class).getBody();
+
+        //Extracting the response payload
+        VTPassApiContent vtPassApiContent = appUtil.getObjectMapper().convertValue(vtPassApiResponse.getContent(), VTPassApiContent.class);
+        VTPassResponseDto vtPassResponseDto = appUtil.getObjectMapper().convertValue(vtPassApiContent.getTransactions(), VTPassResponseDto.class);
+
+        //Update wallet only when transaction is successful
+        if (vtPassResponseDto.getStatus().equalsIgnoreCase("delivered")) {
+            updateWallet(appUtil.getLoggedInUser().getId(), vtPassResponseDto.getUnit_price());
+        }
+        saveTransaction(vtPassResponseDto, vtPassApiResponse.getRequestId());
+
+        return VTPassResponse.builder()
+                .productName(vtPassResponseDto.getProduct_name())
+                .uniqueElement(vtPassResponseDto.getUnique_element())
+                .unitPrice(vtPassResponseDto.getUnit_price())
+                .email(vtPassResponseDto.getEmail())
+                .phoneNumber(vtPassResponseDto.getPhone())
+                .quantity(vtPassResponseDto.getQuantity())
+                .status(vtPassResponseDto.getStatus())
+                .transactionId(vtPassResponseDto.getTransactionId())
+                .type(vtPassResponseDto.getType())
+                .build();
+    }
+
+    private void updateWallet(Long userId, double amount) {
+        Wallet userWallet = walletRepository.findByUserId(userId).get();
+        userWallet.setBalance(userWallet.getBalance().subtract(BigDecimal.valueOf(amount)));
+
+        walletRepository.save(userWallet);
+    }
+
+    private void saveTransaction(VTPassResponseDto vtPassApiResponse, String requestId) {
+        transactionRepository.save(Transaction.builder()
+                .transactionId(Long.parseLong(requestId))
+                .userId(appUtil.getLoggedInUser().getId())
+                .amount(BigDecimal.valueOf(vtPassApiResponse.getUnit_price()))
+                .currency("NGN")
+                .description(vtPassApiResponse.getProduct_name())
+                .status(vtPassApiResponse.getStatus().equalsIgnoreCase("delivered") ? Status.SUCCESS :
+                        vtPassApiResponse.getStatus().equalsIgnoreCase("pending") ||
+                                vtPassApiResponse.getStatus().equalsIgnoreCase("initiated") ? Status.PENDING : Status.FAILED)
+                .paymentType(vtPassApiResponse.getType())
+                .build());
+    }
     public ApiResponse payElectricityBill(ElectricityBillRequest request){
 
         String requestId = appUtil.getReference();
@@ -178,6 +239,7 @@ public class BillServiceImpl implements BillService {
                 .meterNumber(request.getBillersCode())
                 .build();
         beneficiaryRepository.save(beneficiary);
+
     }
 
     @Override
@@ -213,7 +275,7 @@ public class BillServiceImpl implements BillService {
             }
 
             if (response.getCode().equals("000")){
-                wallet.setBalance(BigDecimal.valueOf(walletBalance.doubleValue() - request.getAmount().doubleValue()));
+                wallet.setBalance(walletBalance.subtract(request.getAmount()));
                 walletRepository.save(wallet);
             }
 
@@ -241,15 +303,14 @@ public class BillServiceImpl implements BillService {
     }
     private void saveTransaction(DataPurchaseResponse response, Long userId) {
         Transaction transaction = Transaction.builder()
-                .transactionId((Long) response.getContent().get(0).get("transactionId"))
+//                .transactionId((Long) response.getContent().get("transactionId"))
                 .userId(userId)
                 .currency("NGN")
-                .status(response.getCode().equals("000") ? Status.SUCCESS : Status.FAILED)
+                .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))
                 .request_id(response.getRequestId())
                 .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
                 .build();
 
         transactionRepository.save(transaction);
     }
-
 }

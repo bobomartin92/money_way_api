@@ -25,17 +25,16 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionId;
 
+    private String request_id;
 
     @Column(nullable = false)
     private String currency;
     @Column(nullable = false)
     private BigDecimal amount;
-//    @Column(nullable = false)
     private String virtualAccountRef;
     private String description;
     @Enumerated(EnumType.STRING)
     private Status status;
-    private String request_id;
     private String responseMessage;
     private String providerStatus;
     private String paymentType;

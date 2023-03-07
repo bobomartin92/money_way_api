@@ -21,6 +21,7 @@ import com.example.money_way.repository.WalletRepository;
 import com.example.money_way.service.WalletService;
 import com.example.money_way.utils.AppUtil;
 import com.example.money_way.utils.EnvironmentVariables;
+import com.example.money_way.utils.RestTemplateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ public class WalletServiceImpl implements WalletService {
     private final TransactionRepository transactionRepository;
     private final WalletRepository walletRepository;
     private final RestTemplate restTemplate;
+    private final RestTemplateUtil restTemplateUtil;
     private final AppUtil appUtil;
     private final EnvironmentVariables environmentVariables;
 
@@ -104,13 +106,8 @@ public class WalletServiceImpl implements WalletService {
         //Flutter end-point for verifying transactions
         String url = environmentVariables.getVerifyTransactionEndpoint()+transactionId+"/verify";
 
-        //Set request headers
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + environmentVariables.getFLW_SECRET_KEY());
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
         //Package request headers into an entity since request does not have a body
-        HttpEntity entity = new HttpEntity<>(headers);
+        HttpEntity entity = new HttpEntity<>(restTemplateUtil.headersForFlutterwave());
 
         //Make the API call and get the response object from Flutter
         ApiResponse apiResponse = restTemplate.exchange(url, HttpMethod.GET, entity, ApiResponse.class).getBody();

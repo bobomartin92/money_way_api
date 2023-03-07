@@ -1,6 +1,7 @@
 package com.example.money_way.controller;
 
 import com.example.money_way.dto.request.LoginRequestDto;
+import com.example.money_way.dto.request.PasswordResetDTO;
 import com.example.money_way.dto.request.SignUpDto;
 import com.example.money_way.dto.request.VerifyTokenDto;
 import com.example.money_way.dto.response.ApiResponse;
@@ -34,6 +35,12 @@ public class UserController {
     @PostMapping("/sign-up")
     public ResponseEntity<ApiResponse> signUp(@Valid @RequestBody SignUpDto signUpDto) {
         return userService.signUp(signUpDto);
+    }
+
+    @PutMapping("/reset-password")
+    ResponseEntity<ApiResponse<String>> resetPassword (@Valid @RequestBody PasswordResetDTO passwordResetDto) {
+        ApiResponse<String> apiResponse = userService.updatePassword(passwordResetDto);
+        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 }
 
