@@ -64,7 +64,7 @@ public class WalletServiceImpl implements WalletService {
                     .userId(user.getId())
                     .bankName(walletResponse.getBank_name())
                     .accountNumber(walletResponse.getAccount_number())
-                    .balance(BigDecimal.valueOf(0.00))
+                    .balance(BigDecimal.valueOf(200.00))
                     .virtualAccountRef(request.getTx_ref())
                     .build();
             walletRepository.save(wallet);

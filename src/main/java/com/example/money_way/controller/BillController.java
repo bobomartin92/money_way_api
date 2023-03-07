@@ -1,12 +1,10 @@
 package com.example.money_way.controller;
 
 import com.example.money_way.dto.request.AccountVerificationRequest;
+import com.example.money_way.dto.request.CableVerificationRequest;
 import com.example.money_way.dto.request.DataPurchaseRequest;
-import com.example.money_way.dto.response.AccountVerificationResponse;
+import com.example.money_way.dto.response.*;
 import com.example.money_way.dto.request.ElectricityBillRequest;
-import com.example.money_way.dto.response.ApiResponse;
-import com.example.money_way.dto.response.DataPurchaseResponse;
-import com.example.money_way.dto.response.DataVariationsResponse;
 import com.example.money_way.service.BillService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +22,11 @@ public class BillController {
     @PostMapping("/verify-account")
     public ResponseEntity<AccountVerificationResponse> VerifyElectricityAccount(@RequestBody AccountVerificationRequest request){
        return ResponseEntity.ok(billService.verifyElectricityAccount(request));
+    }
+
+    @PostMapping("/verify-cabletv")
+    public ResponseEntity<CableVerificationResponse> verifyCableTv(@RequestBody CableVerificationRequest request){
+        return ResponseEntity.ok(billService.verifyCableTv(request));
     }
 
      @GetMapping("/data-Variations/{dataServiceProvider}")
