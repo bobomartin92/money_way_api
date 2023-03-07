@@ -10,6 +10,7 @@ public class CustomerRequestDtoForTvSubscription {
     private String decoderOrSmartCardNumber;
     private String subscriptionPackage;
     private BigDecimal amount;
+    private String pin;
     private String phone;
     private int numberOfMonthlySubscription;
     private String subscriptionType;

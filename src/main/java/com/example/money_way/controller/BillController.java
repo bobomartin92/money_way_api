@@ -1,18 +1,11 @@
 package com.example.money_way.controller;
 
-import com.example.money_way.dto.request.AccountVerificationRequest;
-import com.example.money_way.dto.request.CustomerRequestDtoForTvSubscription;
+import com.example.money_way.dto.request.*;
 import com.example.money_way.dto.response.AccountVerificationResponse;
-import com.example.money_way.dto.request.AccountVerificationRequest;
-import com.example.money_way.dto.request.DataPurchaseRequest;
-import com.example.money_way.dto.response.AccountVerificationResponse;
-import com.example.money_way.dto.request.ElectricityBillRequest;
 import com.example.money_way.dto.response.ApiResponse;
-import com.example.money_way.dto.response.DataPurchaseResponse;
 import com.example.money_way.dto.response.DataVariationsResponse;
 import com.example.money_way.dto.response.TvPurchaseResponse;
 import com.example.money_way.service.BillService;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

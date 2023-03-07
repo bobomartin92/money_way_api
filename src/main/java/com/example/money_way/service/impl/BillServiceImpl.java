@@ -4,7 +4,6 @@ import com.example.money_way.dto.request.*;
 import com.example.money_way.dto.response.*;
 import com.example.money_way.enums.Status;
 import com.example.money_way.exception.InsufficientFundsException;
-import com.example.money_way.exception.ResourceNotFoundException;
 import com.example.money_way.exception.InvalidCredentialsException;
 import com.example.money_way.exception.ResourceNotFoundException;
 import com.example.money_way.model.Beneficiary;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.Optional;
 
 @Service
@@ -45,6 +43,7 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public ApiResponse<TvPurchaseResponse> purchaseTvSubscription(CustomerRequestDtoForTvSubscription request) {
+        User user = appUtil.getLoggedInUser();
         String transactionReference = appUtil.getReference() + "TV-SUBSCRIPTION";
         VtPassTvPurchaseRequest vtPassRequest = VtPassTvPurchaseRequest.builder()
                 .phone(request.getPhone())
@@ -55,44 +54,48 @@ public class BillServiceImpl implements BillService {
                 .variation_code(request.getSubscriptionPackage())
                 .build();
 
-        Long userId = appUtil.getLoggedInUser().getId();
+        Long userId = user.getId();
+        if (!passwordEncoder.matches(request.getPin(),user.getPin())){
+          throw new InvalidCredentialsException("Pin is incorrect");
+        }
         Wallet wallet = walletRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Wallet Not Found"));
         BigDecimal walletBalance = wallet.getBalance();
             if (walletBalance.compareTo(request.getAmount()) >= 0) {
 
-               HttpHeaders headers = restTemplateUtil.getVTPASS_Header();
+                TvPurchaseResponse tvPurchaseResponse = restTemplateUtil.getTvPurchaseResponse(vtPassRequest);
+                if (request.isSaveBeneficiary()) {
+                saveBeneficiary(request, userId);
+            }
+                if (tvPurchaseResponse.getCode().equals("000")){
+                    wallet.setBalance(walletBalance.subtract(request.getAmount()));
+                    walletRepository.save(wallet);
+                }
 
-            HttpEntity<VtPassTvPurchaseRequest> entity = new HttpEntity<>(vtPassRequest, headers);
-            TvPurchaseResponse tvPurchaseResponse = restTemplate.exchange(environmentVariables.getPurchaseSubscriptionUrl(),
-                    HttpMethod.POST, entity, TvPurchaseResponse.class).getBody();
-//            if (request.isSaveBeneficiary()) {
-//                saveBeneficiary(request, userId);
-//            }
-            wallet.setBalance(walletBalance.subtract(request.getAmount(),new MathContext(2)));
-            walletRepository.save(wallet);
-            saveTransactionForTvSubscription(request,transactionReference,userId);
-            return new ApiResponse<>("Success", "Successful Transaction", tvPurchaseResponse);
+            saveTransactionForTvSubscription(tvPurchaseResponse,transactionReference,userId);
+            return new ApiResponse<>(tvPurchaseResponse.getCode().equals("000") ? Status.SUCCESS.name():
+                    Status.FAILED.name(),tvPurchaseResponse.getResponse_description(),null);
         }
         return new ApiResponse<>("Failed","Insufficient Wallet Balance",null);
     }
 
-//    private void saveBeneficiary(CustomerRequestDtoForTvSubscription request, Long userId) {
-//        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBySmartCardNumber(request.getDecoderOrSmartCardNumber());
-//        if (savedBeneficiary.isEmpty()) {
-//            Beneficiary beneficiary = Beneficiary.builder()
-//                    .userId(userId)
-//                    .phoneNumber(request.getPhone())
-//                    .SmartCardNumber(request.getDecoderOrSmartCardNumber())
-//                    .build();
-//            beneficiaryRepository.save(beneficiary);
-//        }
-//    }
+    private void saveBeneficiary(CustomerRequestDtoForTvSubscription request, Long userId) {
+        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiaryBySmartCardNumber(request.getDecoderOrSmartCardNumber());
+        if (savedBeneficiary.isEmpty()) {
+            Beneficiary beneficiary = Beneficiary.builder()
+                    .userId(userId)
+                    .smartCardNumber(request.getDecoderOrSmartCardNumber())
+                    .build();
+            beneficiaryRepository.save(beneficiary);
+        }
+    }
 
-    private void saveTransactionForTvSubscription(CustomerRequestDtoForTvSubscription request, String transactionReference, Long userId) {
+    private void saveTransactionForTvSubscription(TvPurchaseResponse response, String transactionReference, Long userId) {
         Transaction transaction = Transaction.builder()
                 .userId(userId).currency("NIL")
                 .request_id(transactionReference)
-                .amount(request.getAmount()).build();
+                .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
+                .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS"): Status.valueOf("FAILED"))
+                .build();
                 transactionRepository.save(transaction);
      }
 
@@ -248,4 +251,5 @@ public class BillServiceImpl implements BillService {
 
         transactionRepository.save(transaction);
     }
+
 }

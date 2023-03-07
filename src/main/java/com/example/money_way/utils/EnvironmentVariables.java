@@ -23,11 +23,11 @@ public class EnvironmentVariables {
     @Value("${app.flutter_base_url}"+"${app.flutter_endpoint_to_retry_transfer_to_bank}")
     private String getRetryTransferToBankUrl;
 
-    @Value("${app.vt-pass-api-key}")
-    private String vtPassApiKey;
-
-    @Value("${app.vt-pass-secret-key}")
-    private String vtPassSecretKey;
+//    @Value("${app.vt-pass-api-key}")
+//    private String vtPassApiKey;
+//
+//    @Value("${app.vt-pass-secret-key}")
+//    private String vtPassSecretKey;
 
     @Value("${app.purchase_Tv-Subscription}")
     private String purchaseSubscriptionUrl;

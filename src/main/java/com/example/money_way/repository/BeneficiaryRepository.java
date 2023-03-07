@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface BeneficiaryRepository extends JpaRepository<Beneficiary, Long> {
     Optional<Beneficiary> findByAccountNumberAndUserId(String accountNumber, Long userId);
-//    Optional<Beneficiary>findBySmartCardNumber(String SmartCardNumber);
+    Optional<Beneficiary>findBeneficiaryBySmartCardNumber(String SmartCardNumber);
 
 
     Optional<Beneficiary> findBeneficiariesByPhoneNumber(String phoneNumber);
