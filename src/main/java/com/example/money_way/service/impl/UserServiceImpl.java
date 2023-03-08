@@ -94,6 +94,8 @@ public class UserServiceImpl implements UserService {
             CreateWalletRequest request = new CreateWalletRequest();
             request.setEmail(existingUser.get().getEmail());
             request.setBvn(existingUser.get().getBvn());
+            request.setIs_permanent(true);
+            request.setTx_ref("TX"+appUtil.generateReference());
             walletService.createWallet(request);
             return ApiResponse.builder().message("Success").status("Account created successfully").build();
         }

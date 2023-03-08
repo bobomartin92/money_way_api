@@ -6,9 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 @Data
@@ -16,12 +13,12 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
-public class CreateWalletRequest {
-    private String email;
+public class AirtimeRequestDto {
 
-    private String bvn;
-
-    private String tx_ref;
-
-    private Boolean is_permanent;
+    private String request_id;
+    private String serviceID;
+    private String billersCode;
+    private String variation_code;
+    private BigDecimal amount;
+    private String phone;
 }

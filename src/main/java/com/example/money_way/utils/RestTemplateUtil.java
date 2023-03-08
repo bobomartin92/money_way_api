@@ -1,8 +1,15 @@
 package com.example.money_way.utils;
 
+import com.example.money_way.dto.request.ElectricityRequestDto;
+import com.example.money_way.dto.request.DataPurchaseRequest;
+import com.example.money_way.dto.request.DataRequestDto;
 import com.example.money_way.dto.request.TransferToBankDto;
 import com.example.money_way.dto.request.TransferToBankRequest;
 import com.example.money_way.dto.response.*;
+import com.example.money_way.dto.response.BanksResponse;
+import com.example.money_way.dto.response.DataPurchaseResponse;
+import com.example.money_way.dto.response.TransferFeeResponse;
+import com.example.money_way.dto.response.TransferToBankResponse;
 import com.example.money_way.model.Bank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -100,4 +107,20 @@ public class RestTemplateUtil {
                 HttpMethod.GET, entity, DataVariationsResponse.class).getBody();
 
     }
+    public BillResponse getVTPassElectricityBillResponse(ElectricityRequestDto requestDto) {
+        HttpHeaders headers = getVTPASS_Header();
+        HttpEntity<ElectricityRequestDto> entity = new HttpEntity<>(requestDto, headers);
+
+        return restTemplate.exchange(environmentVariables.getElectricityBillsUrl(),
+                HttpMethod.POST, entity, BillResponse.class).getBody();
+
+    }
+    public DataPurchaseResponse getDataPurchaseResponse(DataRequestDto dataRequestDto) {
+        HttpHeaders headers = getVTPASS_Header();
+        HttpEntity<DataRequestDto> entity = new HttpEntity<>(dataRequestDto, headers);
+
+        return restTemplate.exchange(environmentVariables.getPurchaseDataUrl(),
+                HttpMethod.POST, entity, DataPurchaseResponse.class).getBody();
+    }
+
 }
