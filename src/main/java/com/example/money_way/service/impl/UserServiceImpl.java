@@ -68,6 +68,13 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public ResponseEntity<String> login(LoginRequestDto request) {
+
+        User users = userRepository.findByEmail(request.getEmail()).orElseThrow(()
+                -> new UserNotFoundException("User Not Found"));
+        if(!users.isActive()) {
+         throw new ValidationException(" User Not Active");
+        }
+
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
