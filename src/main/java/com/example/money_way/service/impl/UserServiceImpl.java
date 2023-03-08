@@ -23,7 +23,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -88,7 +87,6 @@ public class UserServiceImpl implements UserService {
             CreateWalletRequest request = new CreateWalletRequest();
             request.setEmail(existingUser.get().getEmail());
             request.setBvn(existingUser.get().getBvn());
-            request.setAmount(BigDecimal.valueOf(200));
             walletService.createWallet(request);
             return ApiResponse.builder().message("Success").status("Account created successfully").build();
         }
