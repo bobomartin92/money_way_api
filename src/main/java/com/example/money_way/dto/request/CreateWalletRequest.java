@@ -21,13 +21,7 @@ public class CreateWalletRequest {
 
     private String bvn;
 
-    private String currency;
-
-    private BigDecimal amount;
-
     private String tx_ref;
 
-    private String is_permanent;
-
-    private String narration;
+    private Boolean is_permanent;
 }
