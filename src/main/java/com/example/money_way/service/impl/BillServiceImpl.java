@@ -219,7 +219,7 @@ public class BillServiceImpl implements BillService {
             }
 
             if (response.getCode().equals("000")){
-                wallet.setBalance(BigDecimal.valueOf(walletBalance.doubleValue() - request.getAmount().doubleValue()));
+                wallet.setBalance(walletBalance.subtract(request.getAmount()));
                 walletRepository.save(wallet);
             }
 
@@ -247,10 +247,10 @@ public class BillServiceImpl implements BillService {
     }
     private void saveTransaction(DataPurchaseResponse response, Long userId) {
         Transaction transaction = Transaction.builder()
-                .transactionId((Long) response.getContent().get(0).get("transactionId"))
+//                .transactionId((Long) response.getContent().get("transactionId"))
                 .userId(userId)
                 .currency("NGN")
-                .status(response.getCode().equals("000") ? Status.SUCCESS : Status.FAILED)
+                .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))
                 .request_id(response.getRequestId())
                 .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
                 .build();
