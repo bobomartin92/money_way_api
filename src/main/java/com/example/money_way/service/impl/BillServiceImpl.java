@@ -121,8 +121,9 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public VTPassResponse buyAirtime(AirtimeRequest airtimeRequest) {
+        String requestId = appUtil.getReference()+"Airtime-"+appUtil.getLoggedInUser().getId();
         AirtimeRequestDto airtimeRequestDto = AirtimeRequestDto.builder()
-                .request_id(airtimeRequest.getRequestId())
+                .request_id(requestId)
                 .variation_code(airtimeRequest.getVariationCode())
                 .serviceID(airtimeRequest.getServiceID())
                 .phone(airtimeRequest.getPhoneNumber())

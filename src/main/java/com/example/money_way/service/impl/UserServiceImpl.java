@@ -66,6 +66,13 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public ResponseEntity<String> login(LoginRequestDto request) {
+
+        User users = userRepository.findByEmail(request.getEmail()).orElseThrow(()
+                -> new UserNotFoundException("User Not Found"));
+        if(!users.isActive()) {
+         throw new ValidationException(" User Not Active");
+        }
+
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
@@ -87,6 +94,8 @@ public class UserServiceImpl implements UserService {
             CreateWalletRequest request = new CreateWalletRequest();
             request.setEmail(existingUser.get().getEmail());
             request.setBvn(existingUser.get().getBvn());
+            request.setIs_permanent(true);
+            request.setTx_ref("TX"+appUtil.generateReference());
             walletService.createWallet(request);
             return ApiResponse.builder().message("Success").status("Account created successfully").build();
         }
