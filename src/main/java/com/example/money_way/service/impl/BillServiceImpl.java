@@ -165,6 +165,12 @@ public class BillServiceImpl implements BillService {
         return apiResponse;
     }
 
+    @Override
+    public ApiResponse<TvVariationsResponse> fetchTvVariations(String tvServiceProvider) {
+        TvVariationsResponse response = restTemplateUtil.fetchTvVariations(tvServiceProvider);
+        return new ApiResponse<>("Success", null, response);
+    }
+
     private void saveTransaction(String requestId, Long userId, Wallet userWallet, BillResponse billResponse) {
         Transaction transaction = Transaction.builder()
                 .userId(userId)
