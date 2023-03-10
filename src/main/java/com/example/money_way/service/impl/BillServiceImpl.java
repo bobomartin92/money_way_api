@@ -18,6 +18,8 @@ import com.example.money_way.utils.AppUtil;
 import com.example.money_way.utils.EnvironmentVariables;
 import com.example.money_way.utils.RestTemplateUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -62,11 +64,13 @@ public class BillServiceImpl implements BillService {
         if (!passwordEncoder.matches(request.getPin(),user.getPin())){
           throw new InvalidCredentialsException("Pin is incorrect");
         }
-        Wallet wallet = walletRepository.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Wallet Not Found"));
+        Wallet wallet = walletRepository.findByUserId(appUtil.getLoggedInUser().getId()).orElseThrow(() -> new ResourceNotFoundException("Wallet Not Found"));
         BigDecimal walletBalance = wallet.getBalance();
             if (walletBalance.compareTo(request.getAmount()) >= 0) {
 
                 TvPurchaseResponse tvPurchaseResponse = restTemplateUtil.getTvPurchaseResponse(vtPassRequest);
+                TvPurchaseResponseDto tvPurchaseResponseDto = new TvPurchaseResponseDto();
+                BeanUtils.copyProperties(tvPurchaseResponse,tvPurchaseResponseDto);
                 if (request.isSaveBeneficiary()) {
                 saveBeneficiary(request, userId);
             }
@@ -77,7 +81,8 @@ public class BillServiceImpl implements BillService {
 
             saveTransactionForTvSubscription(tvPurchaseResponse,transactionReference,userId);
             return new ApiResponse<>(tvPurchaseResponse.getCode().equals("000") ? Status.SUCCESS.name():
-                    Status.FAILED.name(),tvPurchaseResponse.getResponse_description(),null);
+                    Status.FAILED.name(), tvPurchaseResponseDto.getResponse_description(),null);
+//                tvPurchaseResponse.getResponse_description()
         }
         return new ApiResponse<>("Failed","Insufficient Wallet Balance",null);
     }
