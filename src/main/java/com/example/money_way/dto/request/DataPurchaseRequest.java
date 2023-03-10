@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 @Data
@@ -17,7 +18,7 @@ public class DataPurchaseRequest {
     private String billersCode;
     @NotBlank(message = "variation_code cannot be blank")
     private String variationCode;
-    @NotBlank(message = "Please enter the amount")
+    @NotNull(message = "Please enter the amount")
     private BigDecimal amount;
     @NotBlank(message = "Phone number cannot be blank")
     private String phoneNumber;
