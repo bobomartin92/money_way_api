@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 public class Wallet extends Base {
     private String bankName;
     private String accountNumber;
+    private String pin;
     private BigDecimal balance;
     private String virtualAccountRef;
     @Column(nullable = false)
