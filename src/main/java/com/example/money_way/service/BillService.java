@@ -17,5 +17,5 @@ public interface BillService {
     VTPassResponse buyAirtime(AirtimeRequest airtimeRequest);
     ApiResponse payElectricityBill(ElectricityBillRequest request);
 
-
+    ApiResponse<TvVariationsResponse> fetchTvVariations(String tvServiceProvider);
 }

@@ -53,5 +53,6 @@ public class EnvironmentVariables {
     private String electricityBillsUrl;
     @Value("${app.validate-account-number-url}")
     private String validateAccountUrl;
-
+    @Value("${app.tv_variations}")
+    private String fetchTvVariations;
 }
