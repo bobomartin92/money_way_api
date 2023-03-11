@@ -212,10 +212,9 @@ public class WalletServiceImpl implements WalletService {
                 HttpMethod.POST, entity, ApiResponse.class).getBody();
     }
 
-    public ResponseEntity<ApiResponse> updateWalletPin(CreateTransactionPinDto createTransactionPinDto) {
+    public ResponseEntity<ApiResponse> updateWalletPin (CreateTransactionPinDto createTransactionPinDto) {
         Long userId = appUtil.getLoggedInUser().getId();
         Wallet userWallet = walletRepository.findByUserId(userId).get();
-
 
         if (userWallet != null) {
             userWallet.setPin(passwordEncoder.encode(createTransactionPinDto.getNewPin()));
@@ -226,6 +225,4 @@ public class WalletServiceImpl implements WalletService {
                     .body(new ApiResponse<>("Error", "Wallet not found", null));
         }
     }
-
-
 }

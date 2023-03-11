@@ -32,7 +32,7 @@ public class WalletController {
         return ResponseEntity.ok().body(walletService.validateAccount(accountValidationDto));
     }
     @PutMapping("/updateWalletPin")
-    public ResponseEntity<ApiResponse> updateWalletPin(@RequestBody CreateTransactionPinDto createTransactionPinDto){
-        return walletService.updateWalletPin(createTransactionPinDto);
+    public ResponseEntity<ApiResponse> updateWalletPin(@RequestBody CreateTransactionPinDto transactionPinDto){
+        return walletService.updateWalletPin(transactionPinDto);
     }
 }

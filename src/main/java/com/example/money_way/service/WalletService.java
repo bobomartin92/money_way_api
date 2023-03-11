@@ -19,6 +19,6 @@ public interface WalletService {
     ResponseEntity<String> processWebHookEvent(WebHookResponse<VerifyTransaction> webHookResponse);
 
     ApiResponse<AccountValidationDto> validateAccount(AccountValidationDto validate);
-    ResponseEntity<ApiResponse>  updateWalletPin(CreateTransactionPinDto createTransactionPinDto);
+    ResponseEntity<ApiResponse>  updateWalletPin(CreateTransactionPinDto transactionPin);
 
 }
