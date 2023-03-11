@@ -74,8 +74,9 @@ public class BillServiceImpl implements BillService {
 
     @Override
     public VTPassResponse buyAirtime(AirtimeRequest airtimeRequest) {
+        String requestId = appUtil.getReference()+"Airtime-"+appUtil.getLoggedInUser().getId();
         AirtimeRequestDto airtimeRequestDto = AirtimeRequestDto.builder()
-                .request_id(airtimeRequest.getRequestId())
+                .request_id(requestId)
                 .variation_code(airtimeRequest.getVariationCode())
                 .serviceID(airtimeRequest.getServiceID())
                 .phone(airtimeRequest.getPhoneNumber())
@@ -174,13 +175,19 @@ public class BillServiceImpl implements BillService {
         return apiResponse;
     }
 
+    @Override
+    public ApiResponse<TvVariationsResponse> fetchTvVariations(String tvServiceProvider) {
+        TvVariationsResponse response = restTemplateUtil.fetchTvVariations(tvServiceProvider);
+        return new ApiResponse<>("Success", null, response);
+    }
+
     private void saveTransaction(String requestId, Long userId, Wallet userWallet, BillResponse billResponse) {
         Transaction transaction = Transaction.builder()
                 .userId(userId)
                 .transactionId(Long.valueOf(requestId))
                 .currency("NGN")
                 .amount(BigDecimal.valueOf(Double.parseDouble(billResponse.getAmount())))
-                .status(billResponse.getCode().equals("000") ? Status.SUCCESS : Status.FAILED)
+                .status(billResponse.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))
                 .virtualAccountRef(userWallet.getVirtualAccountRef())
                 .build();
         transactionRepository.save(transaction);

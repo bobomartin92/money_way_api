@@ -23,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -66,6 +67,13 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public ResponseEntity<String> login(LoginRequestDto request) {
+
+        User users = userRepository.findByEmail(request.getEmail()).orElseThrow(()
+                -> new UserNotFoundException("User Not Found"));
+        if(!users.isActive()) {
+         throw new ValidationException(" User Not Active");
+        }
+
         authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
@@ -87,6 +95,8 @@ public class UserServiceImpl implements UserService {
             CreateWalletRequest request = new CreateWalletRequest();
             request.setEmail(existingUser.get().getEmail());
             request.setBvn(existingUser.get().getBvn());
+            request.setIs_permanent(true);
+            request.setTx_ref("TX"+appUtil.generateReference());
             walletService.createWallet(request);
             return ApiResponse.builder().message("Success").status("Account created successfully").build();
         }
@@ -114,7 +124,7 @@ public class UserServiceImpl implements UserService {
         user.setConfirmationToken(token);
         userRepository.save(user);
 
-        String URL = "http://localhost:8084/api/v1/auth/verify-link/?token=" + token;
+        String URL = "http://localhost:8080/api/v1/auth/verify-link/?token=" + token;
         String link = "<h3>Hello "  + signUpDto.getFirstName()  +"<br> Click the link below to activate your account <a href=" + URL + "><br>Activate</a></h3>";
 
         emailService.sendEmail(signUpDto.getEmail(),"MoneyWay: Verify Your Account", link);
