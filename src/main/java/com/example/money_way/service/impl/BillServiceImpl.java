@@ -225,7 +225,6 @@ public class BillServiceImpl implements BillService {
                 .orElseThrow(()-> new ResourceNotFoundException("Wallet Not Found"));
         BigDecimal walletBalance = wallet.getBalance();
 
-        //please there is a correction to be made here deduct money before making api call for transaction
 
         if (walletBalance.compareTo(request.getAmount()) >= 0){
 
