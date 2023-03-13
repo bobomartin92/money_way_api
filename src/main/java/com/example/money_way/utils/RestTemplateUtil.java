@@ -26,7 +26,7 @@ public class RestTemplateUtil {
     private final RestTemplate restTemplate;
     private final EnvironmentVariables environmentVariables;
 
-    public HttpHeaders getVTPASS_Header() {
+    public HttpHeaders  getVTPASS_Header() {
         HttpHeaders header = new HttpHeaders();
         header.add("api-key", environmentVariables.getVTPASS_API_KEY());
         header.add("secret-key", environmentVariables.getVTPASS_Secret_Key());
