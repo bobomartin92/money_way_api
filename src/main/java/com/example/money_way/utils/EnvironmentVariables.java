@@ -23,6 +23,9 @@ public class EnvironmentVariables {
     @Value("${app.flutter_base_url}"+"${app.flutter_endpoint_to_retry_transfer_to_bank}")
     private String getRetryTransferToBankUrl;
 
+    @Value("${app.purchase_Tv-Subscription}")
+    private String purchaseSubscriptionUrl;
+
     @Value("${app.purchase_data}")
     private String purchaseDataUrl;
 
@@ -37,6 +40,9 @@ public class EnvironmentVariables {
 
     @Value("${app.vt-pass-verify-account-url}")
     private String verifyElectricityAccountUrl;
+
+    @Value("${app.vt-pass-verify-account-url}")
+    private String verifyCableTvUrl;
 
     @Value("${app.VTPASS_API_KEY}")
     private String VTPASS_API_KEY;
@@ -53,5 +59,6 @@ public class EnvironmentVariables {
     private String electricityBillsUrl;
     @Value("${app.validate-account-number-url}")
     private String validateAccountUrl;
-
+    @Value("${app.tv_variations}")
+    private String fetchTvVariations;
 }
