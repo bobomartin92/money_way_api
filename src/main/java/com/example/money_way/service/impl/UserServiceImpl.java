@@ -23,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Service
@@ -39,6 +40,7 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailService customUserDetailService;
     private final JwtUtils jwtUtils;
+
 
 
     @Override
@@ -130,5 +132,35 @@ public class UserServiceImpl implements UserService {
 
         return ResponseEntity.ok(new ApiResponse<>("Successful", "SignUp Successful. Check your mail to activate your account", null));
     }
-}
 
+    @Override
+    public ApiResponse<String> forgotPassword(ForgotPasswordDTORequest forgotPasswordDTORequest) throws IOException {
+        String email = forgotPasswordDTORequest.getEmail();
+
+        Boolean isEmailExist = userRepository.existsByEmail(email);
+        if (!isEmailExist)
+            throw new UserNotFoundException("User Does Not Exist!");
+
+        User user = userRepository.findByEmail(email).get();
+        String token = jwtUtils.resetPasswordToken(email);
+        user.setConfirmationToken(token);
+        userRepository.save(user);
+
+        String resetPasswordLink = "http://localhost:8080/api/v1/auth/resetPassword" + token;
+        String resetLink = "<h3>Hello " + user.getFirstName() + ",<br> Click the link below to reset your password <a href=" + resetPasswordLink + "><br>Reset Password</a></h3>";
+
+        emailService.sendEmail(email, "MoneyWay: Click on the link to reset your Password", resetLink);
+        return new ApiResponse<>(null, "A password reset link has been sent to your email", null);
+
+    }
+    @Override
+    public ApiResponse<String> resetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO) {
+        String password = resetPasswordRequestDTO.getNewPassword();
+        User user = userRepository.findByConfirmationToken(resetPasswordRequestDTO.getToken()).get();
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+
+        return new ApiResponse<String>("Success", "password reset successful", null);
+    }
+
+}
