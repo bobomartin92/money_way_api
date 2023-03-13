@@ -8,6 +8,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Optional<Transaction> findByVirtualAccountRef(String ref);
 
+    Optional<Transaction> findByUserIdAndTransactionId(Long userId, Long transactionId);
 
     Optional<Transaction> findByTransactionId(Long transactionId);
 }
