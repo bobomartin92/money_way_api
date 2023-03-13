@@ -7,6 +7,10 @@ import com.example.money_way.dto.response.DataVariationsResponse;
 import com.example.money_way.dto.response.TvPurchaseResponse;
 
 import com.example.money_way.dto.request.AccountVerificationRequest;
+import com.example.money_way.dto.request.CableVerificationRequest;
+import com.example.money_way.dto.request.DataPurchaseRequest;
+import com.example.money_way.dto.response.*;
+import com.example.money_way.dto.request.ElectricityBillRequest;
 import com.example.money_way.dto.request.AirtimeRequest;
 import com.example.money_way.dto.request.DataPurchaseRequest;
 import com.example.money_way.dto.request.ElectricityBillRequest;
@@ -39,6 +43,11 @@ public class BillController {
        return ResponseEntity.ok(billService.verifyElectricityAccount(request));
     }
 
+    @PostMapping("/verify-cabletv")
+    public ResponseEntity<CableVerificationResponse> verifyCableTv(@RequestBody CableVerificationRequest request){
+        return ResponseEntity.ok(billService.verifyCableTv(request));
+    }
+
      @GetMapping("/data-Variations/{dataServiceProvider}")
     public ResponseEntity<ApiResponse<DataVariationsResponse>> getDataVariations(@PathVariable String dataServiceProvider) {
         return ResponseEntity.ok(billService.fetchDataVariations(dataServiceProvider));
@@ -63,5 +72,10 @@ public class BillController {
     @PostMapping("/bills-webhook-vtpass")
     public ResponseEntity<VTPassWebhookResponse> processWebHook(@RequestBody VTPassApiResponse vtPassApiResponse) {
         return vtPassWebhookService.billsWebhookHandler(vtPassApiResponse);
+    }
+
+    @PostMapping("/tv-variations/{tvServiceProvider}")
+    public ResponseEntity<ApiResponse<TvVariationsResponse>> getTvVariations(@PathVariable String tvServiceProvider) {
+        return ResponseEntity.ok(billService.fetchTvVariations(tvServiceProvider));
     }
 }

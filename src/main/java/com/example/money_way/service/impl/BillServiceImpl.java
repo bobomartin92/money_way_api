@@ -116,6 +116,16 @@ public class BillServiceImpl implements BillService {
                 HttpMethod.POST, entity, AccountVerificationResponse.class).getBody();
         return response;
     }
+
+    @Override
+    public CableVerificationResponse verifyCableTv(CableVerificationRequest request){
+        HttpHeaders headers = restTemplateUtil.getVTPASS_Header();
+        HttpEntity<CableVerificationRequest> entity =new HttpEntity<>(request, headers);
+
+        CableVerificationResponse response= restTemplate.exchange(environmentVariables.getVerifyCableTvUrl(),
+                HttpMethod.POST, entity, CableVerificationResponse.class).getBody();
+        return response;
+    }
     
     
      @Override
@@ -227,13 +237,19 @@ public class BillServiceImpl implements BillService {
         return apiResponse;
     }
 
+    @Override
+    public ApiResponse<TvVariationsResponse> fetchTvVariations(String tvServiceProvider) {
+        TvVariationsResponse response = restTemplateUtil.fetchTvVariations(tvServiceProvider);
+        return new ApiResponse<>("Success", null, response);
+    }
+
     private void saveTransaction(String requestId, Long userId, Wallet userWallet, BillResponse billResponse) {
         Transaction transaction = Transaction.builder()
                 .userId(userId)
                 .transactionId(Long.valueOf(requestId))
                 .currency("NGN")
                 .amount(BigDecimal.valueOf(Double.parseDouble(billResponse.getAmount())))
-                .status(billResponse.getCode().equals("000") ? Status.SUCCESS : Status.FAILED)
+                .status(billResponse.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))
                 .virtualAccountRef(userWallet.getVirtualAccountRef())
                 .build();
         transactionRepository.save(transaction);

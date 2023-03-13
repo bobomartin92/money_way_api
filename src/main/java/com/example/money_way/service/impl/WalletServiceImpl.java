@@ -3,6 +3,7 @@ package com.example.money_way.service.impl;
 
 import com.example.money_way.dto.request.AccountValidationDto;
 import com.example.money_way.dto.request.AccountValidationRequest;
+import com.example.money_way.dto.request.CreateTransactionPinDto;
 import com.example.money_way.dto.request.CreateWalletRequest;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.dto.response.CreateWalletResponse;
@@ -24,6 +25,7 @@ import com.example.money_way.utils.EnvironmentVariables;
 import com.example.money_way.utils.RestTemplateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -44,6 +46,7 @@ public class WalletServiceImpl implements WalletService {
     private final RestTemplateUtil restTemplateUtil;
     private final AppUtil appUtil;
     private final EnvironmentVariables environmentVariables;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public ApiResponse createWallet(CreateWalletRequest request) {
@@ -209,4 +212,17 @@ public class WalletServiceImpl implements WalletService {
                 HttpMethod.POST, entity, ApiResponse.class).getBody();
     }
 
+    public ResponseEntity<ApiResponse> updateWalletPin (CreateTransactionPinDto createTransactionPinDto) {
+        Long userId = appUtil.getLoggedInUser().getId();
+        Wallet userWallet = walletRepository.findByUserId(userId).get();
+
+        if (userWallet != null) {
+            userWallet.setPin(passwordEncoder.encode(createTransactionPinDto.getNewPin()));
+            walletRepository.save(userWallet);
+            return ResponseEntity.ok(new ApiResponse<>("Success", "Wallet pin successfully changed", null));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>("Error", "Wallet not found", null));
+        }
+    }
 }
