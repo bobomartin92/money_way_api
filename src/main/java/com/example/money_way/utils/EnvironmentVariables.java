@@ -23,6 +23,9 @@ public class EnvironmentVariables {
     @Value("${app.flutter_base_url}"+"${app.flutter_endpoint_to_retry_transfer_to_bank}")
     private String getRetryTransferToBankUrl;
 
+    @Value("${app.purchase_Tv-Subscription}")
+    private String purchaseSubscriptionUrl;
+
     @Value("${app.purchase_data}")
     private String purchaseDataUrl;
 

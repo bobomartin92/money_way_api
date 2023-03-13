@@ -18,6 +18,8 @@ import com.example.money_way.utils.AppUtil;
 import com.example.money_way.utils.EnvironmentVariables;
 import com.example.money_way.utils.RestTemplateUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -46,6 +48,66 @@ public class BillServiceImpl implements BillService {
 
 
     @Override
+    public ApiResponse<TvPurchaseResponse> purchaseTvSubscription(CustomerRequestDtoForTvSubscription request) {
+        User user = appUtil.getLoggedInUser();
+        String transactionReference = appUtil.getReference() + "TV-SUBSCRIPTION";
+        VtPassTvPurchaseRequest vtPassRequest = VtPassTvPurchaseRequest.builder()
+                .phone(request.getPhone())
+                .billersCode(request.getDecoderOrSmartCardNumber())
+                .request_id(transactionReference)
+                .subscription_type(request.getSubscriptionType())
+                .serviceID(request.getDecoderName())
+                .variation_code(request.getSubscriptionPackage())
+                .build();
+
+        Long userId = user.getId();
+        if (!passwordEncoder.matches(request.getPin(),user.getPin())){
+          throw new InvalidCredentialsException("Pin is incorrect");
+        }
+        Wallet wallet = walletRepository.findByUserId(appUtil.getLoggedInUser().getId()).orElseThrow(() -> new ResourceNotFoundException("Wallet Not Found"));
+        BigDecimal walletBalance = wallet.getBalance();
+            if (walletBalance.compareTo(request.getAmount()) >= 0) {
+
+                TvPurchaseResponse tvPurchaseResponse = restTemplateUtil.getTvPurchaseResponse(vtPassRequest);
+                TvPurchaseResponseDto tvPurchaseResponseDto = new TvPurchaseResponseDto();
+                BeanUtils.copyProperties(tvPurchaseResponse,tvPurchaseResponseDto);
+                if (request.isSaveBeneficiary()) {
+                saveBeneficiary(request, userId);
+            }
+                if (tvPurchaseResponse.getCode().equals("000")){
+                    wallet.setBalance(walletBalance.subtract(request.getAmount()));
+                    walletRepository.save(wallet);
+                }
+
+            saveTransactionForTvSubscription(tvPurchaseResponse,transactionReference,userId);
+            return new ApiResponse<>(tvPurchaseResponse.getCode().equals("000") ? Status.SUCCESS.name():
+                    Status.FAILED.name(), tvPurchaseResponseDto.getResponse_description(),null);
+//                tvPurchaseResponse.getResponse_description()
+        }
+        return new ApiResponse<>("Failed","Insufficient Wallet Balance",null);
+    }
+
+    private void saveBeneficiary(CustomerRequestDtoForTvSubscription request, Long userId) {
+        Optional<Beneficiary> savedBeneficiary = beneficiaryRepository.findBeneficiaryBySmartCardNumber(request.getDecoderOrSmartCardNumber());
+        if (savedBeneficiary.isEmpty()) {
+            Beneficiary beneficiary = Beneficiary.builder()
+                    .userId(userId)
+                    .smartCardNumber(request.getDecoderOrSmartCardNumber())
+                    .build();
+            beneficiaryRepository.save(beneficiary);
+        }
+    }
+
+    private void saveTransactionForTvSubscription(TvPurchaseResponse response, String transactionReference, Long userId) {
+        Transaction transaction = Transaction.builder()
+                .userId(userId).currency("NIL")
+                .request_id(transactionReference)
+                .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
+                .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS"): Status.valueOf("FAILED"))
+                .build();
+                transactionRepository.save(transaction);
+     }
+
     public AccountVerificationResponse verifyElectricityAccount(AccountVerificationRequest request) {
         HttpHeaders headers = restTemplateUtil.getVTPASS_Header();
         HttpEntity<AccountVerificationRequest> entity = new HttpEntity<>(request, headers);
@@ -263,7 +325,6 @@ public class BillServiceImpl implements BillService {
     }
     private void saveTransaction(DataPurchaseResponse response, Long userId) {
         Transaction transaction = Transaction.builder()
-//                .transactionId((Long) response.getContent().get("transactionId"))
                 .userId(userId)
                 .currency("NGN")
                 .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))

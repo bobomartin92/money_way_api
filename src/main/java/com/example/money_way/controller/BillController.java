@@ -1,5 +1,10 @@
 package com.example.money_way.controller;
 
+import com.example.money_way.dto.request.*;
+import com.example.money_way.dto.response.AccountVerificationResponse;
+import com.example.money_way.dto.response.ApiResponse;
+import com.example.money_way.dto.response.DataVariationsResponse;
+import com.example.money_way.dto.response.TvPurchaseResponse;
 
 import com.example.money_way.dto.request.AccountVerificationRequest;
 import com.example.money_way.dto.request.CableVerificationRequest;
@@ -27,6 +32,11 @@ import javax.validation.Valid;
 public class BillController {
 
     private final BillService billService;
+
+    @PostMapping("/tvSubscription")
+    public ResponseEntity<ApiResponse<TvPurchaseResponse>> purchaseTvSubscription(@RequestBody CustomerRequestDtoForTvSubscription request){
+        return ResponseEntity.ok(billService.purchaseTvSubscription(request));
+    }
     private final VTPassWebhookService vtPassWebhookService;
     @PostMapping("/verify-account")
     public ResponseEntity<AccountVerificationResponse> VerifyElectricityAccount(@RequestBody AccountVerificationRequest request){
