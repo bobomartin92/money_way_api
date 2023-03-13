@@ -38,6 +38,9 @@ public class EnvironmentVariables {
     @Value("${app.vt-pass-verify-account-url}")
     private String verifyElectricityAccountUrl;
 
+    @Value("${app.vt-pass-verify-account-url}")
+    private String verifyCableTvUrl;
+
     @Value("${app.VTPASS_API_KEY}")
     private String VTPASS_API_KEY;
 

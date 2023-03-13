@@ -54,6 +54,16 @@ public class BillServiceImpl implements BillService {
                 HttpMethod.POST, entity, AccountVerificationResponse.class).getBody();
         return response;
     }
+
+    @Override
+    public CableVerificationResponse verifyCableTv(CableVerificationRequest request){
+        HttpHeaders headers = restTemplateUtil.getVTPASS_Header();
+        HttpEntity<CableVerificationRequest> entity =new HttpEntity<>(request, headers);
+
+        CableVerificationResponse response= restTemplate.exchange(environmentVariables.getVerifyCableTvUrl(),
+                HttpMethod.POST, entity, CableVerificationResponse.class).getBody();
+        return response;
+    }
     
     
      @Override

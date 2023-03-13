@@ -2,6 +2,10 @@ package com.example.money_way.controller;
 
 
 import com.example.money_way.dto.request.AccountVerificationRequest;
+import com.example.money_way.dto.request.CableVerificationRequest;
+import com.example.money_way.dto.request.DataPurchaseRequest;
+import com.example.money_way.dto.response.*;
+import com.example.money_way.dto.request.ElectricityBillRequest;
 import com.example.money_way.dto.request.AirtimeRequest;
 import com.example.money_way.dto.request.DataPurchaseRequest;
 import com.example.money_way.dto.request.ElectricityBillRequest;
@@ -27,6 +31,11 @@ public class BillController {
     @PostMapping("/verify-account")
     public ResponseEntity<AccountVerificationResponse> VerifyElectricityAccount(@RequestBody AccountVerificationRequest request){
        return ResponseEntity.ok(billService.verifyElectricityAccount(request));
+    }
+
+    @PostMapping("/verify-cabletv")
+    public ResponseEntity<CableVerificationResponse> verifyCableTv(@RequestBody CableVerificationRequest request){
+        return ResponseEntity.ok(billService.verifyCableTv(request));
     }
 
      @GetMapping("/data-Variations/{dataServiceProvider}")
