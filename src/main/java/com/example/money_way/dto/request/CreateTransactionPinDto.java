@@ -6,15 +6,19 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Getter
 @Setter
 public class CreateTransactionPinDto {
-    @NotNull
+    @Size(min = 4, max = 4)
+    @NotBlank(message = "Pin cannot be blank")
     private String oldPin;
-    @NotNull
+    @Size(min = 4, max = 4)
+    @NotBlank(message = "Pin cannot be blank")
     private String newPin;
-    @NotNull
+    @Size(min = 4, max = 4)
+    @NotBlank(message = "Pin cannot be blank")
     private String confirmPin;
 
 }
