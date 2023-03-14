@@ -37,7 +37,7 @@ public class SecurityConfiguration {
             path + "/verify-token/**",
             path + "/sign-up",
             "/api/v1/transfers/bank/response",
-            path + "/verify-link"
+            path + "/verify-link/**"
     };
 
     private final JwtAuthFilter jwtAuthFilter;
