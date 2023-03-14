@@ -11,6 +11,7 @@ import com.example.money_way.exception.UserNotFoundException;
 import com.example.money_way.exception.ValidationException;
 import com.example.money_way.model.User;
 import com.example.money_way.repository.UserRepository;
+import com.example.money_way.repository.WalletRepository;
 import com.example.money_way.service.UserService;
 import com.example.money_way.service.WalletService;
 import com.example.money_way.utils.AppUtil;
@@ -40,6 +41,7 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailService customUserDetailService;
     private final JwtUtils jwtUtils;
+    private final WalletRepository walletRepository;
 
 
     @Override
@@ -90,6 +92,9 @@ public class UserServiceImpl implements UserService {
 
         Optional<User> existingUser = userRepository.findByConfirmationToken(verifyTokenDto.getToken());
         if (existingUser.isPresent()) {
+            if (existingUser.get().isActive() && walletRepository.findByUserId(existingUser.get().getId()).isPresent()){
+                return ApiResponse.builder().message("Account already verified").status("false").build();
+            }
             existingUser.get().setConfirmationToken(null);
             existingUser.get().setActive(true);
             CreateWalletRequest request = new CreateWalletRequest();
@@ -98,6 +103,7 @@ public class UserServiceImpl implements UserService {
             request.setIs_permanent(true);
             request.setTx_ref("TX"+appUtil.generateReference());
             walletService.createWallet(request);
+            userRepository.save(existingUser.get());
             return ApiResponse.builder().message("Success").status("Account created successfully").build();
         }
         throw new UserNotFoundException("Error: No Account found! or Invalid Token");
