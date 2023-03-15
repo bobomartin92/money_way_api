@@ -5,6 +5,7 @@ import com.example.money_way.configuration.security.CustomUserDetailService;
 import com.example.money_way.configuration.security.JwtUtils;
 import com.example.money_way.dto.request.*;
 import com.example.money_way.dto.response.ApiResponse;
+import com.example.money_way.dto.response.UserProfileResponse;
 import com.example.money_way.enums.Role;
 import com.example.money_way.exception.InvalidCredentialsException;
 import com.example.money_way.exception.UserNotFoundException;
@@ -130,6 +131,22 @@ public class UserServiceImpl implements UserService {
         emailService.sendEmail(signUpDto.getEmail(),"MoneyWay: Verify Your Account", link);
 
         return ResponseEntity.ok(new ApiResponse<>("Successful", "SignUp Successful. Check your mail to activate your account", null));
+    }
+
+    @Override
+    public ApiResponse<UserProfileResponse> getUserProfile() {
+        User user = appUtil.getLoggedInUser();
+
+        UserProfileResponse response = UserProfileResponse.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .imageUrl(user.getImageUrl())
+                .address(user.getAddress())
+                .build();
+
+        return new ApiResponse<>("SUCCESS", "User Profile", response);
     }
 }
 
