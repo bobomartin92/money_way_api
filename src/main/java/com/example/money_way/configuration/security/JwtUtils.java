@@ -83,4 +83,16 @@ public class JwtUtils {
                 .compact();
     }
 
+    public String resetPasswordToken(String email){
+        Date currentDate = new Date();
+        Date expirationDate = new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(15));
+
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(expirationDate)
+                .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
+                .compact();
+    }
+
 }
