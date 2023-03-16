@@ -75,7 +75,7 @@ public class WalletServiceImpl implements WalletService {
                     .virtualAccountRef(request.getTx_ref())
                     .build();
             walletRepository.save(wallet);
-        } else {
+        }else{
             throw new ResourceNotFoundException("Wallet Creation failed: An error has occurred");
         }
 
@@ -91,7 +91,7 @@ public class WalletServiceImpl implements WalletService {
         User user = appUtil.getLoggedInUser();
 
         Wallet wallet = walletRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Wallet Not Found"));
+                .orElseThrow(()-> new ResourceNotFoundException("Wallet Not Found"));
 
         viewWalletResponseDto = ViewWalletResponseDto.builder()
                 .walletId(wallet.getId())
@@ -232,20 +232,5 @@ public class WalletServiceImpl implements WalletService {
     }
 }
 
-
-
-
-//        Long userId = appUtil.getLoggedInUser().getId();
-//        Wallet userWallet = walletRepository.findByUserId(userId).get();
-//
-//        if (userWallet != null) {
-//            userWallet.setUserId(passwordEncoder.encode(createTransactionPinDto.getNewPin())
-//            walletRepository.save(userWallet);
-//            return ResponseEntity.ok(new ApiResponse<>("Success", "Wallet pin successfully changed", null));
-//        } else {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(new ApiResponse<>("Error", "Wallet not found", null));
-//        }
-//    }
 
 
