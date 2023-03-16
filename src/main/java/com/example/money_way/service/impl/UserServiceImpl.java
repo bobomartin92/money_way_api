@@ -11,6 +11,7 @@ import com.example.money_way.exception.UserNotFoundException;
 import com.example.money_way.exception.ValidationException;
 import com.example.money_way.model.User;
 import com.example.money_way.repository.UserRepository;
+import com.example.money_way.repository.WalletRepository;
 import com.example.money_way.service.UserService;
 import com.example.money_way.service.WalletService;
 import com.example.money_way.utils.AppUtil;
@@ -22,7 +23,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -39,6 +41,8 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final CustomUserDetailService customUserDetailService;
     private final JwtUtils jwtUtils;
+    private final WalletRepository walletRepository;
+
 
 
     @Override
@@ -89,6 +93,9 @@ public class UserServiceImpl implements UserService {
 
         Optional<User> existingUser = userRepository.findByConfirmationToken(verifyTokenDto.getToken());
         if (existingUser.isPresent()) {
+            if (existingUser.get().isActive() && walletRepository.findByUserId(existingUser.get().getId()).isPresent()){
+                return ApiResponse.builder().message("Account already verified").status("false").build();
+            }
             existingUser.get().setConfirmationToken(null);
             existingUser.get().setActive(true);
             CreateWalletRequest request = new CreateWalletRequest();
@@ -97,6 +104,7 @@ public class UserServiceImpl implements UserService {
             request.setIs_permanent(true);
             request.setTx_ref("TX"+appUtil.generateReference());
             walletService.createWallet(request);
+            userRepository.save(existingUser.get());
             return ApiResponse.builder().message("Success").status("Account created successfully").build();
         }
         throw new UserNotFoundException("Error: No Account found! or Invalid Token");
@@ -130,5 +138,35 @@ public class UserServiceImpl implements UserService {
 
         return ResponseEntity.ok(new ApiResponse<>("Successful", "SignUp Successful. Check your mail to activate your account", null));
     }
-}
 
+    @Override
+    public ApiResponse<String> forgotPassword(ForgotPasswordDTORequest forgotPasswordDTORequest) throws IOException {
+        String email = forgotPasswordDTORequest.getEmail();
+
+        Boolean isEmailExist = userRepository.existsByEmail(email);
+        if (!isEmailExist)
+            throw new UserNotFoundException("User Does Not Exist!");
+
+        User user = userRepository.findByEmail(email).get();
+        String token = jwtUtils.resetPasswordToken(email);
+        user.setConfirmationToken(token);
+        userRepository.save(user);
+
+        String resetPasswordLink = "http://localhost:8080/api/v1/auth/resetPassword" + token;
+        String resetLink = "<h3>Hello " + user.getFirstName() + ",<br> Click the link below to reset your password <a href=" + resetPasswordLink + "><br>Reset Password</a></h3>";
+
+        emailService.sendEmail(email, "MoneyWay: Click on the link to reset your Password", resetLink);
+        return new ApiResponse<>(null, "A password reset link has been sent to your email", null);
+
+    }
+    @Override
+    public ApiResponse<String> resetPassword(ResetPasswordRequestDTO resetPasswordRequestDTO) {
+        String password = resetPasswordRequestDTO.getNewPassword();
+        User user = userRepository.findByConfirmationToken(resetPasswordRequestDTO.getToken()).get();
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+
+        return new ApiResponse<String>("Success", "password reset successful", null);
+    }
+
+}

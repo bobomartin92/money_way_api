@@ -1,9 +1,6 @@
 package com.example.money_way.controller;
 
-import com.example.money_way.dto.request.LoginRequestDto;
-import com.example.money_way.dto.request.PasswordResetDTO;
-import com.example.money_way.dto.request.SignUpDto;
-import com.example.money_way.dto.request.VerifyTokenDto;
+import com.example.money_way.dto.request.*;
 import com.example.money_way.dto.response.ApiResponse;
 import com.example.money_way.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController
@@ -41,6 +39,18 @@ public class UserController {
     ResponseEntity<ApiResponse<String>> changePassword (@Valid @RequestBody PasswordResetDTO passwordResetDto) {
         ApiResponse<String> apiResponse = userService.updatePassword(passwordResetDto);
         return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/forgot-password")
+    ResponseEntity<ApiResponse<String>> forgotPassword(@Valid @RequestBody ForgotPasswordDTORequest forgotPasswordDTORequest) throws IOException {
+         ApiResponse<String> response = userService.forgotPassword(forgotPasswordDTORequest);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/reset-password")
+    ResponseEntity<ApiResponse<String>> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO resetPasswordRequestDTO) {
+        ApiResponse<String> resetPasswordResponse = userService.resetPassword(resetPasswordRequestDTO);
+        return new ResponseEntity<>(resetPasswordResponse, HttpStatus.CREATED);
     }
 }
 
