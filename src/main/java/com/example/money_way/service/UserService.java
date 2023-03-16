@@ -2,6 +2,7 @@ package com.example.money_way.service;
 
 import com.example.money_way.dto.request.*;
 import com.example.money_way.dto.response.ApiResponse;
+import com.example.money_way.dto.response.UserProfileResponse;
 import com.example.money_way.exception.ValidationException;
 import org.springframework.http.ResponseEntity;
 
@@ -15,6 +16,8 @@ public interface UserService {
     ApiResponse verifyLink(VerifyTokenDto verifyTokenDto);
 
     ResponseEntity<ApiResponse> signUp(SignUpDto signUpDto) throws ValidationException;
+
+    ApiResponse<UserProfileResponse> getUserProfile();
 
     ApiResponse forgotPassword(ForgotPasswordDTORequest forgotPasswordDTORequest) throws IOException;
 
