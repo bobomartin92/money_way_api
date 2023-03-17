@@ -74,7 +74,7 @@ public class BillController {
         return vtPassWebhookService.billsWebhookHandler(vtPassApiResponse);
     }
 
-    @PostMapping("/tv-variations/{tvServiceProvider}")
+    @GetMapping("/tv-variations/{tvServiceProvider}")
     public ResponseEntity<ApiResponse<TvVariationsResponse>> getTvVariations(@PathVariable String tvServiceProvider) {
         return ResponseEntity.ok(billService.fetchTvVariations(tvServiceProvider));
     }
