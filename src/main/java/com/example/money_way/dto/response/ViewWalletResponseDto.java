@@ -15,4 +15,6 @@ public class ViewWalletResponseDto {
 
     private Long walletId;
     private BigDecimal balance;
+    private String bankName = "Wema Bank";
+    private String accountNumber;
 }
