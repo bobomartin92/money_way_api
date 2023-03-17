@@ -96,6 +96,7 @@ public class WalletServiceImpl implements WalletService {
         viewWalletResponseDto = ViewWalletResponseDto.builder()
                 .walletId(wallet.getId())
                 .balance(wallet.getBalance())
+                .accountNumber(wallet.getAccountNumber())
                 .build();
 
         return ApiResponse.builder()
