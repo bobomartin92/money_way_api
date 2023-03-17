@@ -1,7 +1,16 @@
 package com.example.money_way.controller;
 
+import com.example.money_way.dto.request.*;
+import com.example.money_way.dto.response.AccountVerificationResponse;
+import com.example.money_way.dto.response.ApiResponse;
+import com.example.money_way.dto.response.DataVariationsResponse;
+import com.example.money_way.dto.response.TvPurchaseResponse;
 
 import com.example.money_way.dto.request.AccountVerificationRequest;
+import com.example.money_way.dto.request.CableVerificationRequest;
+import com.example.money_way.dto.request.DataPurchaseRequest;
+import com.example.money_way.dto.response.*;
+import com.example.money_way.dto.request.ElectricityBillRequest;
 import com.example.money_way.dto.request.AirtimeRequest;
 import com.example.money_way.dto.request.DataPurchaseRequest;
 import com.example.money_way.dto.request.ElectricityBillRequest;
@@ -23,10 +32,20 @@ import javax.validation.Valid;
 public class BillController {
 
     private final BillService billService;
+
+    @PostMapping("/tvSubscription")
+    public ResponseEntity<ApiResponse<TvPurchaseResponse>> purchaseTvSubscription(@RequestBody CustomerRequestDtoForTvSubscription request){
+        return ResponseEntity.ok(billService.purchaseTvSubscription(request));
+    }
     private final VTPassWebhookService vtPassWebhookService;
     @PostMapping("/verify-account")
     public ResponseEntity<AccountVerificationResponse> VerifyElectricityAccount(@RequestBody AccountVerificationRequest request){
        return ResponseEntity.ok(billService.verifyElectricityAccount(request));
+    }
+
+    @PostMapping("/verify-cabletv")
+    public ResponseEntity<CableVerificationResponse> verifyCableTv(@RequestBody CableVerificationRequest request){
+        return ResponseEntity.ok(billService.verifyCableTv(request));
     }
 
      @GetMapping("/data-Variations/{dataServiceProvider}")
@@ -55,7 +74,7 @@ public class BillController {
         return vtPassWebhookService.billsWebhookHandler(vtPassApiResponse);
     }
 
-    @PostMapping("/tv-variations/{tvServiceProvider}")
+    @GetMapping("/tv-variations/{tvServiceProvider}")
     public ResponseEntity<ApiResponse<TvVariationsResponse>> getTvVariations(@PathVariable String tvServiceProvider) {
         return ResponseEntity.ok(billService.fetchTvVariations(tvServiceProvider));
     }

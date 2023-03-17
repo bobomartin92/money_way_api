@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/wallet")
@@ -31,8 +33,8 @@ public class WalletController {
     public ResponseEntity<ApiResponse> validateAccount(@RequestBody AccountValidationDto accountValidationDto) {
         return ResponseEntity.ok().body(walletService.validateAccount(accountValidationDto));
     }
-    @PutMapping("/updateWalletPin")
-    public ResponseEntity<ApiResponse> updateWalletPin(@RequestBody CreateTransactionPinDto transactionPinDto){
+    @PatchMapping("/updateWalletPin")
+    public ResponseEntity<ApiResponse> updateWalletPin(@Valid @RequestBody CreateTransactionPinDto transactionPinDto){
         return walletService.updateWalletPin(transactionPinDto);
     }
 }
