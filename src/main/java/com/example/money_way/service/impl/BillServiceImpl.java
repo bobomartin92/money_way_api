@@ -3,6 +3,7 @@ package com.example.money_way.service.impl;
 import com.example.money_way.dto.request.*;
 import com.example.money_way.dto.response.*;
 import com.example.money_way.enums.Status;
+import com.example.money_way.enums.TransactionType;
 import com.example.money_way.exception.InsufficientFundsException;
 import com.example.money_way.exception.InvalidCredentialsException;
 import com.example.money_way.exception.ResourceNotFoundException;
@@ -103,6 +104,7 @@ public class BillServiceImpl implements BillService {
                 .userId(userId).currency("NIL")
                 .request_id(transactionReference)
                 .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
+                .paymentType(TransactionType.BILL.toString())
                 .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS"): Status.valueOf("FAILED"))
                 .build();
                 transactionRepository.save(transaction);
@@ -190,7 +192,7 @@ public class BillServiceImpl implements BillService {
                 .status(vtPassApiResponse.getStatus().equalsIgnoreCase("delivered") ? Status.SUCCESS :
                         vtPassApiResponse.getStatus().equalsIgnoreCase("pending") ||
                                 vtPassApiResponse.getStatus().equalsIgnoreCase("initiated") ? Status.PENDING : Status.FAILED)
-                .paymentType(vtPassApiResponse.getType())
+                .paymentType(TransactionType.AIRTIME.toString())
                 .build());
     }
     public ApiResponse payElectricityBill(ElectricityBillRequest request){
@@ -251,6 +253,7 @@ public class BillServiceImpl implements BillService {
                 .amount(BigDecimal.valueOf(Double.parseDouble(billResponse.getAmount())))
                 .status(billResponse.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))
                 .virtualAccountRef(userWallet.getVirtualAccountRef())
+                .paymentType(TransactionType.BILL.toString())
                 .build();
         transactionRepository.save(transaction);
     }
@@ -330,6 +333,7 @@ public class BillServiceImpl implements BillService {
                 .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))
                 .request_id(response.getRequestId())
                 .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
+                .paymentType(TransactionType.BILL.toString())
                 .build();
 
         transactionRepository.save(transaction);
