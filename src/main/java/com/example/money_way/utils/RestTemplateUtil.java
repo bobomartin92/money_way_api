@@ -129,7 +129,7 @@ public class RestTemplateUtil {
     public TvVariationsResponse fetchTvVariations(String tvServiceProvider){
         HttpHeaders headers = getVTPASS_Header();
         HttpEntity<?> entity = new HttpEntity<>(headers);
-        return restTemplate.exchange(environmentVariables.getFetchTvVariations() + "serviceID = " + tvServiceProvider + "-data",
+        return restTemplate.exchange(environmentVariables.getFetchTvVariations() + "serviceID=" + tvServiceProvider,
                 HttpMethod.GET, entity, TvVariationsResponse.class).getBody();
     }
 
