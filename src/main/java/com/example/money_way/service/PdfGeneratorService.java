@@ -1,13 +1,13 @@
 package com.example.money_way.service;
 
-import com.example.money_way.dto.response.ApiResponse;
-
+import com.lowagie.text.Document;
+import org.springframework.http.ResponseEntity;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public interface PdfGeneratorService {
 
-    ApiResponse<Object> export(Long transactionId, HttpServletResponse response) throws IOException;
+    ResponseEntity<Document> export(Long transactionId, HttpServletResponse response) throws IOException;
 
 
 }

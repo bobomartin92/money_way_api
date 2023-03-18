@@ -1,79 +1,80 @@
 package com.example.money_way.service.impl;
 
-import com.example.money_way.dto.response.ApiResponse;
-import com.example.money_way.dto.response.TransactionReceipt;
 import com.example.money_way.exception.ResourceNotFoundException;
 import com.example.money_way.model.Transaction;
 import com.example.money_way.model.User;
 import com.example.money_way.repository.TransactionRepository;
 import com.example.money_way.service.PdfGeneratorService;
 import com.example.money_way.utils.AppUtil;
-import com.lowagie.text.*;
 import com.lowagie.text.Font;
+import com.lowagie.text.Document;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class PdfGeneratorServiceImplementation implements PdfGeneratorService {
+    private final AppUtil appUtil;
+    private final TransactionRepository transactionRepository;
+    @Override
+    public ResponseEntity<Document> export(Long transactionId, HttpServletResponse response) throws IOException {
 
-     private final AppUtil appUtil;
-     private final TransactionRepository transactionRepository;
+        User user = appUtil.getLoggedInUser();
+        Long userId = user.getId();
+        String sender = user.getFirstName() + " " + user.getLastName();
 
-     @Override
-    public ApiResponse<Object> export(Long transactionId, HttpServletResponse response) throws IOException {
+        Optional<Transaction> transaction1 = transactionRepository.findByUserIdAndTransactionId(userId, transactionId);
+        if (transaction1.isEmpty()) {
+            throw new ResourceNotFoundException("Transaction not found");
+        }
 
-         User user = appUtil.getLoggedInUser();
-         Long userId = user.getId();
+        DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy  hh:mm:ss");
+        String currentDateTime = dateFormat.format(new Date());
 
-         Optional<Transaction> transaction1 = transactionRepository.findByUserIdAndTransactionId(userId, transactionId);
-         if(transaction1.isEmpty()){
-              throw new ResourceNotFoundException("Transaction not found");
-         }
+        Document document = new Document(PageSize.A4);
+        PdfWriter.getInstance(document, response.getOutputStream());
+        document.open();
 
-         Document document = new Document(PageSize.A4);
-         PdfWriter.getInstance(document, response.getOutputStream());
+        Font font = FontFactory.getFont(FontFactory.COURIER_BOLD);
+        font.setColor(Color.BLACK);
+        font.setSize(25);
+        Paragraph p1 = new Paragraph("Transaction Receipt", font);
+        p1.setAlignment(Paragraph.ALIGN_CENTER);
 
-         document.open();
-         Paragraph paragraph = new Paragraph("Transaction Receipt");
-         paragraph.setAlignment(Paragraph.ALIGN_CENTER);
-         Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
-         headerFont.setColor(Color.BLUE);
-         headerFont.setSize(20);
-         Chunk chunk = new Chunk(String.valueOf(paragraph),headerFont);
+        Paragraph p2 = new Paragraph();
+        p2.setAlignment(Paragraph.ALIGN_LEFT);
+        p2.setFont(FontFactory.getFont(FontFactory.COURIER, 16, Color.black));
+        p2.setMultipliedLeading(2);
+        p2.add( "Sender Name: " + sender + '\n' +
+                 "Amount: " + transaction1.get().getAmount() + '\n' +
+                 "Currency: " + transaction1.get().getCurrency() + '\n' +
+                 "Description: " + transaction1.get().getDescription() + '\n' +
+                 "Payment Type: " + transaction1.get().getPaymentType() + '\n' +
+                 "Request-Id: " + transaction1.get().getRequest_id() + '\n' +
+                 "Transaction Date: " + transaction1.get().getCreatedAt() + '\n' +
+                 "Provider Status: " + transaction1.get().getProviderStatus() + '\n' +
+                 "Response Message: " + transaction1.get().getResponseMessage() + '\n' +
+                 "Virtual Account Ref: " + transaction1.get().getVirtualAccountRef() + '\n' +
+                 "Current Date: " + currentDateTime);
 
-          TransactionReceipt receipt = new TransactionReceipt();
-         receipt.setDescription(transaction1.get().getDescription());
-         receipt.setStatus(transaction1.get().getStatus());
-         receipt.setUserId(transaction1.get().getUserId());
-         receipt.setResponseMessage(transaction1.get().getResponseMessage());
-         receipt.setTransactionId(transaction1.get().getTransactionId());
-         receipt.setPaymentType(transaction1.get().getPaymentType());
-         receipt.setVirtualAccountRef(transaction1.get().getVirtualAccountRef());
-         receipt.setProviderStatus(transaction1.get().getProviderStatus());
-         receipt.setAmount(transaction1.get().getAmount());
-         receipt.setCreatedAt(transaction1.get().getCreatedAt());
+        document.add(p1);
+        document.add(p2);
+        document.close();
 
-          Paragraph paragraph1 = new Paragraph(String.valueOf(receipt));
-          paragraph1.setAlignment(Paragraph.ALIGN_LEFT);
-          Font fontParagraph = FontFactory.getFont(FontFactory.HELVETICA);
-          fontParagraph.setSize(14);
-          fontParagraph.setColor(Color.BLACK);
-
-         //document.add(chunk);
-         document.add(paragraph);
-         document.add(paragraph1);
-         document.close();
-
-         return ApiResponse.builder()
-                 .data(receipt)
-                 .build();
+        return ResponseEntity.ok(document);
     }
 
 }
