@@ -12,13 +12,16 @@ import java.util.Date;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TransactionLogResponse {
+    private String accountName;
     private String requestId;
     private String currency;
     private BigDecimal amount;
     private String virtualAccountRef;
     private String description;
-    private Status status;
+    private String status;
     private String paymentType;
+    private String responseMessage;
+    private String providerStatus;
     private Date date;
 }
 
