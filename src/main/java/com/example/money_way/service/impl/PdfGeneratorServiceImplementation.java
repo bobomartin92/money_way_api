@@ -58,16 +58,16 @@ public class PdfGeneratorServiceImplementation implements PdfGeneratorService {
         p2.setAlignment(Paragraph.ALIGN_LEFT);
         p2.setFont(FontFactory.getFont(FontFactory.COURIER, 16, Color.black));
         p2.setMultipliedLeading(2);
-        p2.add( "Sender Name: " + sender + '\n' +
+        p2.add  ("Name: " + sender + '\n' +
                  "Amount: " + transaction1.get().getAmount() + '\n' +
                  "Currency: " + transaction1.get().getCurrency() + '\n' +
                  "Description: " + transaction1.get().getDescription() + '\n' +
                  "Payment Type: " + transaction1.get().getPaymentType() + '\n' +
+                 "Virtual Account Ref: " + transaction1.get().getVirtualAccountRef() + '\n' +
                  "Request-Id: " + transaction1.get().getRequest_id() + '\n' +
                  "Transaction Date: " + transaction1.get().getCreatedAt() + '\n' +
                  "Provider Status: " + transaction1.get().getProviderStatus() + '\n' +
                  "Response Message: " + transaction1.get().getResponseMessage() + '\n' +
-                 "Virtual Account Ref: " + transaction1.get().getVirtualAccountRef() + '\n' +
                  "Current Date: " + currentDateTime);
 
         document.add(p1);
