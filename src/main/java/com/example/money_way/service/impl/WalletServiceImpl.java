@@ -13,6 +13,7 @@ import com.example.money_way.dto.webhook.WebHookResponse;
 import com.example.money_way.enums.Status;
 import com.example.money_way.exception.InvalidTransactionException;
 import com.example.money_way.exception.ResourceNotFoundException;
+import com.example.money_way.exception.ValidationException;
 import com.example.money_way.model.Transaction;
 import com.example.money_way.model.User;
 import com.example.money_way.model.Wallet;
@@ -48,6 +49,7 @@ public class WalletServiceImpl implements WalletService {
     private final EnvironmentVariables environmentVariables;
     private final PasswordEncoder passwordEncoder;
 
+
     @Override
     public ApiResponse createWallet(CreateWalletRequest request) {
 
@@ -79,7 +81,7 @@ public class WalletServiceImpl implements WalletService {
 
         return new ApiResponse("Success", "Wallet created successfully", null);
     }
-   
+
     @Override
     public ApiResponse viewBalance() {
 
@@ -94,6 +96,7 @@ public class WalletServiceImpl implements WalletService {
         viewWalletResponseDto = ViewWalletResponseDto.builder()
                 .walletId(wallet.getId())
                 .balance(wallet.getBalance())
+                .accountNumber(wallet.getAccountNumber())
                 .build();
 
         return ApiResponse.builder()
@@ -107,7 +110,7 @@ public class WalletServiceImpl implements WalletService {
     public ApiResponse<VerifyTransaction> verifyPayment(String transactionId) {
 
         //Flutter end-point for verifying transactions
-        String url = environmentVariables.getVerifyTransactionEndpoint()+transactionId+"/verify";
+        String url = environmentVariables.getVerifyTransactionEndpoint() + transactionId + "/verify";
 
         //Package request headers into an entity since request does not have a body
         HttpEntity entity = new HttpEntity<>(restTemplateUtil.headersForFlutterwave());
@@ -151,7 +154,7 @@ public class WalletServiceImpl implements WalletService {
         return new ResponseEntity<>(HttpStatus.valueOf(200));
     }
 
-    private void  validateTransactionAndUpdateWallet(VerifyTransaction transactionResponseObject) {
+    private void validateTransactionAndUpdateWallet(VerifyTransaction transactionResponseObject) {
 
         //Get the transaction if already logged or create a new transaction
         Transaction transaction = transactionRepository.findByTransactionId(transactionResponseObject.getId())
@@ -212,17 +215,23 @@ public class WalletServiceImpl implements WalletService {
                 HttpMethod.POST, entity, ApiResponse.class).getBody();
     }
 
-    public ResponseEntity<ApiResponse> updateWalletPin (CreateTransactionPinDto createTransactionPinDto) {
-        Long userId = appUtil.getLoggedInUser().getId();
-        Wallet userWallet = walletRepository.findByUserId(userId).get();
-
-        if (userWallet != null) {
-            userWallet.setPin(passwordEncoder.encode(createTransactionPinDto.getNewPin()));
-            walletRepository.save(userWallet);
-            return ResponseEntity.ok(new ApiResponse<>("Success", "Wallet pin successfully changed", null));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ApiResponse<>("Error", "Wallet not found", null));
+    public ResponseEntity<ApiResponse> updateWalletPin(CreateTransactionPinDto createTransactionPinDto) {
+        // Get logged In User
+        User user = appUtil.getLoggedInUser();
+        // Check if Old Pin stored in database matches the provided Old Pin
+        if (passwordEncoder.matches(createTransactionPinDto.getOldPin(), user.getPin())) {
+            //Check if new pin matches with the confirmed pin
+            if (createTransactionPinDto.getNewPin().equals(createTransactionPinDto.getConfirmPin())) {
+                user.setPin(passwordEncoder.encode(createTransactionPinDto.getNewPin()));
+                userRepository.save(user);
+                return ResponseEntity.ok(new ApiResponse<>("Success", "Wallet pin successfully changed", null));
+            } else {
+                throw new ValidationException("Pin does not match");
+            }
         }
+        throw new ValidationException("Incorrect Old Pin");
     }
 }
+
+
+

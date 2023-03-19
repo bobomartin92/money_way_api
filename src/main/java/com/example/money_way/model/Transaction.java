@@ -26,7 +26,7 @@ public class Transaction {
     private Long transactionId;
 
     private String request_id;
-
+    private String accountName;
     @Column(nullable = false)
     private String currency;
     @Column(nullable = false)

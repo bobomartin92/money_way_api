@@ -120,7 +120,7 @@ public class TransferServiceImpl implements TransferService {
             transaction.setStatus(Status.PENDING);
             transaction.setResponseMessage(transferToBankResponse.getMessage());
             transaction.setProviderStatus((String) transferToBankResponse.getData().get("status"));
-            transaction.setPaymentType("BANK");
+            transaction.setPaymentType(TransactionType.ThirdPartyTransfer.toString());
             transaction.setUserId(user.getId());
             transactionRepository.save(transaction);
 
