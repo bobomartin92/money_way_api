@@ -2,7 +2,7 @@ package com.example.money_way.service.impl;
 
 import com.example.money_way.dto.request.TransactionLogRequest;
 import com.example.money_way.dto.response.ApiResponse;
-import com.example.money_way.dto.response.FinancialSummaryResponse;
+import com.example.money_way.dto.response.FinancialSummaryResponseDto;
 import com.example.money_way.dto.response.TransactionLogResponse;
 import com.example.money_way.model.Transaction;
 import com.example.money_way.model.User;
@@ -10,7 +10,6 @@ import com.example.money_way.repository.TransactionRepository;
 import com.example.money_way.service.TransactionService;
 import com.example.money_way.utils.AppUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -69,8 +68,8 @@ public class TransactionServiceImpl implements TransactionService {
         transactionLogResponseList.add(transactionLogResponse);
     }
 
-§
-    public List<FinancialSummaryResponse> getTransactionsByMonth() {
+
+    public List<FinancialSummaryResponseDto> getTransactionGraphByMonth() {
 
         User user = appUtil.getLoggedInUser();
         Long userId = user.getId();

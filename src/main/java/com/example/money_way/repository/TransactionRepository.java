@@ -1,7 +1,6 @@
 package com.example.money_way.repository;
 
-import com.example.money_way.dto.response.FinancialSummaryResponse;
-import com.example.money_way.dto.response.FinancialSummaryResponse;
+import com.example.money_way.dto.response.FinancialSummaryResponseDto;
 import com.example.money_way.model.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,11 +24,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
                                       @Param("endDate") String endDate);
     @Query(value = "SELECT SUM(amount) AS total_amount FROM transaction_tbl WHERE payment_type <> 'deposits' AND EXTRACT(MONTH FROM created_at) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM CURRENT_DATE);", nativeQuery = true)
     BigDecimal findTotalExpenseTransaction();
+
+
     @Query(value = "SELECT EXTRACT(MONTH FROM created_at) AS month,"
-            + " SUM(CASE WHEN paymentType = 'Deposits' THEN amount ELSE 0 END) AS deposits_sum,"
-            + " SUM(CASE WHEN paymentType <> 'Deposits' THEN amount ELSE 0 END) AS expense"
-            + " FROM public.transaction"
+            + " SUM(CASE WHEN payment_Type = 'Deposits' THEN amount ELSE 0 END) AS deposits_sum,"
+            + " SUM(CASE WHEN payment_Type <> 'Deposits' THEN amount ELSE 0 END) AS expense"
+            + " FROM public.transaction_tbl"
             + " GROUP BY month"
             + " ORDER BY month DESC", nativeQuery = true)
-    List<FinancialSummaryResponse> getTransactionsByMonth(@Param("userId") Long userId);
+    List<FinancialSummaryResponseDto> getTransactionsByMonth(@Param("userId") Long userId);
 }

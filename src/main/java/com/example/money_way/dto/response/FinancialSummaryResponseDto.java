@@ -9,10 +9,9 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FinancialSummaryResponse {
-    public class TransactionResult {
+public class FinancialSummaryResponseDto {
         private int month;
         private BigDecimal depositsSum;
         private BigDecimal expense;
-    }
 }
+
