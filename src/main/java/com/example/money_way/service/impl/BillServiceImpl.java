@@ -160,7 +160,8 @@ public class BillServiceImpl implements BillService {
         if (vtPassResponseDto.getStatus().equalsIgnoreCase("delivered")) {
             updateWallet(appUtil.getLoggedInUser().getId(), vtPassResponseDto.getUnit_price());
         }
-        saveTransaction(vtPassResponseDto, vtPassApiResponse.getRequestId());
+        String ref= appUtil.generateReference();
+        saveTransaction(vtPassResponseDto, vtPassApiResponse.getRequestId(), ref);
 
         return VTPassResponse.builder()
                 .productName(vtPassResponseDto.getProduct_name())
@@ -182,10 +183,13 @@ public class BillServiceImpl implements BillService {
         walletRepository.save(userWallet);
     }
 
-    private void saveTransaction(VTPassResponseDto vtPassApiResponse, String requestId) {
+    private void saveTransaction(VTPassResponseDto vtPassApiResponse, String requestId, String ref) {
+        User user = appUtil.getLoggedInUser();
+        String accountName = String.format("%s %s", user.getFirstName(), user.getLastName());
         transactionRepository.save(Transaction.builder()
-                .transactionId(Long.parseLong(requestId))
-                .userId(appUtil.getLoggedInUser().getId())
+                .request_id(requestId)
+                .virtualAccountRef(ref)
+                .userId(user.getId())
                 .amount(BigDecimal.valueOf(vtPassApiResponse.getUnit_price()))
                 .currency("NGN")
                 .description(vtPassApiResponse.getProduct_name())
@@ -193,6 +197,7 @@ public class BillServiceImpl implements BillService {
                         vtPassApiResponse.getStatus().equalsIgnoreCase("pending") ||
                                 vtPassApiResponse.getStatus().equalsIgnoreCase("initiated") ? Status.PENDING : Status.FAILED)
                 .paymentType(TransactionType.AIRTIME.toString())
+                .accountName(accountName)
                 .build());
     }
     public ApiResponse payElectricityBill(ElectricityBillRequest request){
