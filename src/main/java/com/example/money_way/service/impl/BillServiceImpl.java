@@ -160,8 +160,7 @@ public class BillServiceImpl implements BillService {
         if (vtPassResponseDto.getStatus().equalsIgnoreCase("delivered")) {
             updateWallet(appUtil.getLoggedInUser().getId(), vtPassResponseDto.getUnit_price());
         }
-        String ref = appUtil.generateReference();
-        saveTransaction(vtPassResponseDto, vtPassApiResponse.getRequestId(), ref);
+        saveTransaction(vtPassResponseDto, vtPassApiResponse.getRequestId());
 
         return VTPassResponse.builder()
                 .productName(vtPassResponseDto.getProduct_name())
@@ -183,10 +182,9 @@ public class BillServiceImpl implements BillService {
         walletRepository.save(userWallet);
     }
 
-    private void saveTransaction(VTPassResponseDto vtPassApiResponse, String requestId, String ref) {
+    private void saveTransaction(VTPassResponseDto vtPassApiResponse, String requestId) {
         transactionRepository.save(Transaction.builder()
-                .request_id(requestId)
-                .virtualAccountRef(ref)
+                .transactionId(Long.parseLong(requestId))
                 .userId(appUtil.getLoggedInUser().getId())
                 .amount(BigDecimal.valueOf(vtPassApiResponse.getUnit_price()))
                 .currency("NGN")

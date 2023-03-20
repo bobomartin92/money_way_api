@@ -10,16 +10,8 @@ import com.example.money_way.enums.TransactionType;
 import com.example.money_way.exception.InvalidCredentialsException;
 import com.example.money_way.exception.InvalidTransactionException;
 import com.example.money_way.exception.ValidationException;
-import com.example.money_way.model.User;
-import com.example.money_way.model.Wallet;
-import com.example.money_way.model.Transaction;
-import com.example.money_way.model.Transfer;
-import com.example.money_way.model.Beneficiary;
-import com.example.money_way.repository.TransactionRepository;
-import com.example.money_way.repository.TransferRepository;
-import com.example.money_way.repository.WalletRepository;
-import com.example.money_way.repository.UserRepository;
-import com.example.money_way.repository.BeneficiaryRepository;
+import com.example.money_way.model.*;
+import com.example.money_way.repository.*;
 import com.example.money_way.service.TransferService;
 import com.example.money_way.utils.AppUtil;
 import com.example.money_way.utils.RestTemplateUtil;
@@ -27,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -122,6 +113,7 @@ public class TransferServiceImpl implements TransferService {
             transaction.setProviderStatus((String) transferToBankResponse.getData().get("status"));
             transaction.setPaymentType(TransactionType.ThirdPartyTransfer.toString());
             transaction.setUserId(user.getId());
+            transaction.setAccountName(transferToBankDto.getBeneficiaryName());
             transactionRepository.save(transaction);
 
             //Checking if user wants to save beneficiary
@@ -228,16 +220,55 @@ public class TransferServiceImpl implements TransferService {
             wallet2.get().setBalance(wallet2.get().getBalance().add(localTransfer.getAmount()));
             walletRepository.save(wallet2.get());
 
+            //Generating a reference code
+            String ref = appUtil.generateReference();
+
+            saveTransactionLocal(localTransfer, user, receiver.get(), ref);
+
             Transfer transfer = new Transfer();
             transfer.setAmount(localTransfer.getAmount());
             transfer.setEmail(localTransfer.getEmail());
             transfer.setDescription(localTransfer.getDescription());
             transfer.setUserId(userId);
-            transfer.setReferenceId(appUtil.getReference());
+            transfer.setReferenceId(ref);
             transferRepository.save(transfer);
 
             return new ApiResponse("Successful", "Transaction completed successfully", wallet1);
         }
 
+    private void saveTransactionLocal(LocalTransferDto transferDto, User sender, User receiver, String ref) {
+
+        String accountNameReceiver = String.format("%s %s", receiver.getFirstName(), receiver.getLastName());
+        String accountNameSender = String.format("%s %s", sender.getFirstName(), sender.getLastName());
+
+        //Saving transaction to database for sender
+        Transaction transactionSender = new Transaction();
+        transactionSender.setCurrency("NGN");
+        transactionSender.setAmount(transferDto.getAmount());
+        transactionSender.setDescription(transferDto.getDescription());
+        transactionSender.setStatus(Status.SUCCESS);
+        transactionSender.setResponseMessage("Transaction completed successfully");
+        transactionSender.setPaymentType(TransactionType.LocalTransfer.toString());
+        transactionSender.setUserId(sender.getId());
+        transactionSender.setAccountName(accountNameReceiver);
+        transactionSender.setVirtualAccountRef(ref);
+
+        transactionRepository.save(transactionSender);
+
+        //Saving transaction to database for sender
+        Transaction transactionReceiver = new Transaction();
+        transactionReceiver.setCurrency("NGN");
+        transactionReceiver.setAmount(transferDto.getAmount());
+        transactionReceiver.setDescription(transferDto.getDescription());
+        transactionReceiver.setStatus(Status.SUCCESS);
+        transactionReceiver.setResponseMessage("Transaction completed successfully");
+        transactionReceiver.setPaymentType(TransactionType.DEPOSIT.toString());
+        transactionReceiver.setUserId(receiver.getId());
+        transactionReceiver.setAccountName(accountNameSender);
+        transactionReceiver.setVirtualAccountRef(ref);
+
+        transactionRepository.save(transactionReceiver);
     }
+
+}
 
