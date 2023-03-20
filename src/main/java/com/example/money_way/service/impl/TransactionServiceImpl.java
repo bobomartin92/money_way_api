@@ -2,6 +2,7 @@ package com.example.money_way.service.impl;
 
 import com.example.money_way.dto.request.TransactionLogRequest;
 import com.example.money_way.dto.response.ApiResponse;
+import com.example.money_way.dto.response.FinancialSummaryResponseDto;
 import com.example.money_way.dto.response.TransactionLogResponse;
 import com.example.money_way.model.Transaction;
 import com.example.money_way.model.User;
@@ -66,4 +67,15 @@ public class TransactionServiceImpl implements TransactionService {
                 .build();
         transactionLogResponseList.add(transactionLogResponse);
     }
+
+
+    public List<FinancialSummaryResponseDto> getTransactionGraphByMonth() {
+
+        User user = appUtil.getLoggedInUser();
+        Long userId = user.getId();
+
+        return transactionRepository.getTransactionsByMonth(userId);
+    }
+
+
 }
