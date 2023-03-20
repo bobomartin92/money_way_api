@@ -54,7 +54,7 @@ public class BillController {
     }
 
     @PostMapping("/buy-airtime")
-    public ResponseEntity<VTPassResponse> buyAirtime(AirtimeRequest airtimeRequest) {
+    public ResponseEntity<VTPassResponse> buyAirtime(@RequestBody AirtimeRequest airtimeRequest) {
         return ResponseEntity.ok(billService.buyAirtime(airtimeRequest));
     }
 
