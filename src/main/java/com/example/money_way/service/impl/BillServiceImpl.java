@@ -106,6 +106,7 @@ public class BillServiceImpl implements BillService {
                 .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
                 .paymentType(TransactionType.BILL.toString())
                 .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS"): Status.valueOf("FAILED"))
+                .accountName("MR DstvTEST")
                 .build();
                 transactionRepository.save(transaction);
      }
@@ -259,6 +260,7 @@ public class BillServiceImpl implements BillService {
                 .status(billResponse.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))
                 .virtualAccountRef(userWallet.getVirtualAccountRef())
                 .paymentType(TransactionType.BILL.toString())
+                .accountName("TESTMETER1")
                 .build();
         transactionRepository.save(transaction);
     }
@@ -309,7 +311,7 @@ public class BillServiceImpl implements BillService {
                 walletRepository.save(wallet);
             }
 
-            saveTransaction(response, userId);
+            saveTransaction(response, user);
 
             ApiResponse apiResponse = new ApiResponse<>();
             apiResponse.setStatus("SUCCESS");
@@ -331,14 +333,16 @@ public class BillServiceImpl implements BillService {
         }
 
     }
-    private void saveTransaction(DataPurchaseResponse response, Long userId) {
+    private void saveTransaction(DataPurchaseResponse response, User user) {
+        String accountName = String.format("%s %s", user.getFirstName(), user.getLastName());
         Transaction transaction = Transaction.builder()
-                .userId(userId)
+                .userId(user.getId())
                 .currency("NGN")
                 .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))
                 .request_id(response.getRequestId())
                 .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
                 .paymentType(TransactionType.BILL.toString())
+                .accountName(accountName)
                 .build();
 
         transactionRepository.save(transaction);
