@@ -25,7 +25,7 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long transactionId;
 
-    private String request_id;
+    private String requestId;
     private String accountName;
     @Column(nullable = false)
     private String currency;
