@@ -252,7 +252,6 @@ public class BillServiceImpl implements BillService {
     private void saveTransaction(String requestId, Long userId, Wallet userWallet, BillResponse billResponse) {
         Transaction transaction = Transaction.builder()
                 .userId(userId)
-                .transactionId(Long.valueOf(requestId))
                 .currency("NGN")
                 .amount(BigDecimal.valueOf(Double.parseDouble(billResponse.getAmount())))
                 .status(billResponse.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))

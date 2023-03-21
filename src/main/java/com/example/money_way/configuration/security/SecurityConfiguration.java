@@ -26,7 +26,7 @@ public class SecurityConfiguration {
     AuthenticationEntryPoint authEntryPoint;
     private final String path = "/api/v1/auth";
     private final String[] AUTH_WHITELIST = {
-            path +"/login/**", path + "/forgot-password", path + "/reset-password",
+            path +"/login/**", path + "/forgot-password", path + "/change-password",
             path + "/register", path + "/verify-code", path + "/references",
            "/v3/api-docs/**",  "/configuration/**",   "/swagger*/**", "/api/v1/wallet/transaction-webhook", "/api/v1/bills/bills-webhook-vtpass",
             "/swagger-ui/**",  "/webjars/**", "/api/v1/bills/verify-account", "/api/v1/wallet/validate-account",
