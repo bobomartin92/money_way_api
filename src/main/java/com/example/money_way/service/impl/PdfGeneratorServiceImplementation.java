@@ -64,7 +64,7 @@ public class PdfGeneratorServiceImplementation implements PdfGeneratorService {
                  "Description: " + transaction1.get().getDescription() + '\n' +
                  "Payment Type: " + transaction1.get().getPaymentType() + '\n' +
                  "Virtual Account Ref: " + transaction1.get().getVirtualAccountRef() + '\n' +
-                 "Request-Id: " + transaction1.get().getRequest_id() + '\n' +
+                 "Request-Id: " + transaction1.get().getRequestId() + '\n' +
                  "Transaction Date: " + transaction1.get().getCreatedAt() + '\n' +
                  "Provider Status: " + transaction1.get().getProviderStatus() + '\n' +
                  "Response Message: " + transaction1.get().getResponseMessage() + '\n' +

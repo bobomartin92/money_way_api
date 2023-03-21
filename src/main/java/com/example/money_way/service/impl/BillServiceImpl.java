@@ -20,7 +20,6 @@ import com.example.money_way.utils.EnvironmentVariables;
 import com.example.money_way.utils.RestTemplateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -102,7 +101,7 @@ public class BillServiceImpl implements BillService {
     private void saveTransactionForTvSubscription(TvPurchaseResponse response, String transactionReference, Long userId) {
         Transaction transaction = Transaction.builder()
                 .userId(userId).currency("NIL")
-                .request_id(transactionReference)
+                .requestId(transactionReference)
                 .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
                 .paymentType(TransactionType.BILL.toString())
                 .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS"): Status.valueOf("FAILED"))
@@ -161,7 +160,8 @@ public class BillServiceImpl implements BillService {
         if (vtPassResponseDto.getStatus().equalsIgnoreCase("delivered")) {
             updateWallet(appUtil.getLoggedInUser().getId(), vtPassResponseDto.getUnit_price());
         }
-        saveTransaction(vtPassResponseDto, vtPassApiResponse.getRequestId());
+        String ref= appUtil.generateReference();
+        saveTransaction(vtPassResponseDto, vtPassApiResponse.getRequestId(), ref);
 
         return VTPassResponse.builder()
                 .productName(vtPassResponseDto.getProduct_name())
@@ -183,11 +183,12 @@ public class BillServiceImpl implements BillService {
         walletRepository.save(userWallet);
     }
 
-    private void saveTransaction(VTPassResponseDto vtPassApiResponse, String requestId) {
+    private void saveTransaction(VTPassResponseDto vtPassApiResponse, String requestId, String ref) {
         User user = appUtil.getLoggedInUser();
         String accountName = String.format("%s %s", user.getFirstName(), user.getLastName());
         transactionRepository.save(Transaction.builder()
-                .transactionId(Long.parseLong(requestId))
+                .requestId(requestId)
+                .virtualAccountRef(ref)
                 .userId(user.getId())
                 .amount(BigDecimal.valueOf(vtPassApiResponse.getUnit_price()))
                 .currency("NGN")
@@ -336,7 +337,7 @@ public class BillServiceImpl implements BillService {
                 .userId(user.getId())
                 .currency("NGN")
                 .status(response.getCode().equals("000") ? Status.valueOf("SUCCESS") : Status.valueOf("FAILED"))
-                .request_id(response.getRequestId())
+                .requestId(response.getRequestId())
                 .amount(BigDecimal.valueOf(Double.parseDouble(response.getAmount())))
                 .paymentType(TransactionType.BILL.toString())
                 .accountName(accountName)

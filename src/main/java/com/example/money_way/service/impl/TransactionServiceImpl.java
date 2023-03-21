@@ -62,7 +62,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .responseMessage(transaction.getResponseMessage())
                 .providerStatus(transaction.getProviderStatus())
                 .date(transaction.getCreatedAt())
-                .requestId(transaction.getRequest_id())
+                .requestId(transaction.getRequestId())
                 .virtualAccountRef(transaction.getVirtualAccountRef())
                 .build();
         transactionLogResponseList.add(transactionLogResponse);
